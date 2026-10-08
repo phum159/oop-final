@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ติวสอบ Final · OOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5FB; --card:#FFFFFF; --sunk:#F1F2F9; --ink:#1B1F3B; --muted:#6A6F8E; --line:#E3E5F0;
+  --p:#5B4BDB; --p2:#8B5CF6; --p-soft:#ECE9FF; --t:#0E9384; --t-soft:#DDF5F1;
+  --ok:#139A55; --ok-bg:#E6F7EE; --bad:#E0464C; --bad-bg:#FDECEC; --hl:rgba(255,206,51,.45);
+  --sh:0 1px 2px rgba(27,31,59,.05),0 6px 20px rgba(27,31,59,.06);
+  --sh-lg:0 12px 40px rgba(76,60,200,.28);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1020; --card:#171A2E; --sunk:#1F2339; --ink:#E9EAF6; --muted:#9A9EBE; --line:#2A2E48;
+  --p:#8B7CFF; --p2:#B794FF; --p-soft:rgba(139,124,255,.16); --t:#3DD6C3; --t-soft:rgba(61,214,195,.14);
+  --ok:#3DD68C; --ok-bg:rgba(61,214,140,.13); --bad:#FF6B70; --bad-bg:rgba(255,107,112,.13); --hl:rgba(255,206,51,.28);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); --sh-lg:0 12px 40px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1020; --card:#171A2E; --sunk:#1F2339; --ink:#E9EAF6; --muted:#9A9EBE; --line:#2A2E48;
+  --p:#8B7CFF; --p2:#B794FF; --p-soft:rgba(139,124,255,.16); --t:#3DD6C3; --t-soft:rgba(61,214,195,.14);
+  --ok:#3DD68C; --ok-bg:rgba(61,214,140,.13); --bad:#FF6B70; --bad-bg:rgba(255,107,112,.13); --hl:rgba(255,206,51,.28);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); --sh-lg:0 12px 40px rgba(0,0,0,.45); color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Thai","Leelawadee UI","Thonburi","Noto Sans Thai",system-ui,sans-serif;font-size:16px;line-height:1.65;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.big,.tab,.btn{font-family:"Anuphan","IBM Plex Sans Thai","Leelawadee UI",system-ui,sans-serif}
+a{color:var(--p);font-weight:600;text-decoration:none}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* hero */
+.hero{margin:16px 0 0;border-radius:24px;padding:22px 20px;color:#fff;position:relative;overflow:hidden;
+  background:radial-gradient(120% 140% at 100% 0%,#A78BFA 0%,rgba(167,139,250,0) 55%),linear-gradient(135deg,#4338CA 0%,#6D28D9 100%);box-shadow:var(--sh-lg)}
+.hero::after{content:"";position:absolute;right:-60px;bottom:-80px;width:220px;height:220px;border-radius:50%;border:28px solid rgba(255,255,255,.07)}
+.hero-in{display:flex;gap:18px;align-items:center;position:relative;z-index:1}
+.hero h1{font-size:clamp(1.55rem,6.2vw,2.2rem);line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
+.hero p{margin:6px 0 0;color:rgba(255,255,255,.82);font-size:.88rem}
+.hero .ttl{flex:1;min-width:0}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.pills span{font-size:.75rem;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.ring{flex:0 0 auto;width:92px;height:92px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bgc{stroke:rgba(255,255,255,.18)} .ring .fgc{stroke:#fff;transition:stroke-dashoffset .6s ease}
+.ring .rt{position:absolute;inset:0;display:grid;place-content:center;text-align:center;line-height:1.1}
+.ring .rt b{font-family:"Anuphan",sans-serif;font-size:1.35rem}
+.ring .rt small{font-size:.66rem;opacity:.8}
+.hero-stats{display:flex;gap:16px;margin-top:12px;font-size:.8rem;color:rgba(255,255,255,.85)}
+.hero-stats b{color:#fff;font-size:1rem;font-family:"Anuphan",sans-serif;margin-right:3px}
+
+/* tabs */
+nav.tabs{position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top,0px);margin-top:14px;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line)}
+nav.tabs .row{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;max-width:780px;margin:0 auto;scrollbar-width:none}
+nav.tabs .row::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:.9rem;font-weight:600;padding:7px 14px;border-radius:14px;cursor:pointer;line-height:1.25;text-align:left;transition:transform .15s,box-shadow .15s}
+.tab small{display:block;color:var(--muted);font-size:.7rem;font-weight:500;font-family:"IBM Plex Sans Thai",sans-serif}
+.tab.x{border-color:color-mix(in srgb,var(--p) 35%,var(--line))}
+.tab.x::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--p2);margin-right:6px;vertical-align:middle}
+.tab:hover{transform:translateY(-1px)}
+.tab[aria-selected="true"]{background:linear-gradient(135deg,var(--p),var(--p2));border-color:transparent;color:#fff;box-shadow:0 6px 16px color-mix(in srgb,var(--p) 40%,transparent)}
+.tab[aria-selected="true"] small{color:rgba(255,255,255,.85)}
+.tab[aria-selected="true"]::before{background:#fff}
+button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+
+main{padding:24px 0 72px}
+h2{font-size:1.6rem;line-height:1.2;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.92rem}
+
+/* summary */
+details.sum{background:var(--card);border:1px solid var(--line);border-radius:18px;margin-bottom:24px;box-shadow:var(--sh);overflow:hidden}
+details.sum>summary{cursor:pointer;padding:15px 18px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:"Anuphan",sans-serif;font-size:1.05rem}
+details.sum>summary::-webkit-details-marker{display:none}
+details.sum>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+details.sum[open]>summary::after{transform:rotate(-135deg)}
+details.sum[open]>summary{border-bottom:1px solid var(--line)}
+.sumbody{padding:6px 18px 18px}
+.sumbody h4{margin:20px 0 6px;font-size:1rem;font-family:"Anuphan",sans-serif;color:var(--p)}
+.sumbody p{margin:6px 0}
+.sumbody ol{margin:6px 0;padding-left:22px}
+mark{background:linear-gradient(transparent 55%,var(--hl) 55%);color:inherit;padding:0 .08em;border-radius:2px}
+.tw{overflow-x:auto;margin:10px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:420px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:none}
+th{background:var(--sunk);font-weight:600}
+td+td,th+th{border-left:1px solid var(--line)}
+.formula{background:var(--p-soft);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.92rem;line-height:1.85;font-variant-numeric:tabular-nums}
+.note{background:var(--sunk);border-left:3px solid var(--p2);border-radius:8px;padding:9px 12px;font-size:.86rem}
+
+/* filters */
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.84rem;padding:5px 12px;border-radius:999px;cursor:pointer;transition:background .15s}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.reset{margin-left:auto;color:var(--muted);background:transparent;border-style:dashed}
+.score{font-size:.88rem;color:var(--muted);margin:0 0 14px}
+
+/* question */
+.q{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.qh{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.qn{flex:0 0 auto;min-width:32px;height:32px;border-radius:10px;background:var(--p-soft);color:var(--p);display:grid;place-content:center;font-weight:700;font-size:.85rem;font-family:"Anuphan",sans-serif}
+.qt{font-weight:600;flex:1;padding-top:3px}
+.badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;margin-left:auto;align-self:flex-start;margin-top:5px}
+.badge.cw{background:#FFF1C2;color:#8A5A00}
+.badge.ex{background:var(--p-soft);color:var(--p)}
+:root[data-theme="dark"] .badge.cw{background:rgba(255,206,51,.16);color:#FFD66B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .badge.cw{background:rgba(255,206,51,.16);color:#FFD66B}}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.95rem;padding:9px 12px;border-radius:14px;cursor:pointer;line-height:1.5;transition:border-color .15s,background .15s,transform .1s}
+.opt b{flex:0 0 auto;width:28px;height:28px;border-radius:50%;display:grid;place-content:center;background:var(--sunk);color:var(--muted);font-weight:700;font-size:.8rem;font-family:"Anuphan",sans-serif;transition:background .15s,color .15s}
+.opt:hover:not([disabled]){border-color:var(--p);background:color-mix(in srgb,var(--p-soft) 50%,var(--card))}
+.opt:hover:not([disabled]) b{background:var(--p);color:#fff}
+.opt:active:not([disabled]){transform:scale(.99)}
+.opt[disabled]{cursor:default}
+.opt[disabled]:not(.right):not(.wrong){opacity:.6}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.right b{background:var(--ok);color:#fff}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt.wrong b{background:var(--bad);color:#fff}
+.exp{margin-top:12px;font-size:.9rem;padding:10px 12px;border-radius:12px;background:var(--sunk)}
+.exp strong.ok{color:var(--ok)} .exp strong.bad{color:var(--bad)}
+.empty{color:var(--muted);text-align:center;padding:40px 0;background:var(--card);border-radius:18px;border:1px dashed var(--line)}
+
+/* calc / written */
+.calc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:var(--sh)}
+.calc h3{margin:0 0 6px;font-size:1.12rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.calc h3 .badge{margin-left:0;margin-top:0}
+.steps{margin:10px 0 0;padding:12px 14px 12px 34px;background:var(--sunk);border-radius:12px}
+.steps li{margin:4px 0;font-variant-numeric:tabular-nums}
+.ex-q{font-weight:500;margin:10px 0 0}
+.practice{border-top:1px dashed var(--line);margin-top:14px;padding-top:12px}
+.practice p{margin:4px 0}
+.reveal{border:1.5px solid var(--line);color:var(--ink);background:var(--card);font:inherit;font-size:.84rem;font-weight:600;padding:6px 12px;border-radius:10px;cursor:pointer}
+.reveal:hover{border-color:var(--p);color:var(--p)}
+.reveal[data-chk]{background:var(--t);border-color:var(--t);color:#fff}
+.ans{font-weight:700;margin-top:6px;color:var(--t)}
+.flds{display:grid;gap:10px;margin-top:14px}
+.fld{display:grid;grid-template-columns:minmax(110px,42%) 1fr;gap:4px 10px;align-items:center;font-size:.92rem}
+.fld input,.fld select{font:inherit;font-size:1rem;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--sunk);color:var(--ink);min-width:0;width:100%;font-variant-numeric:tabular-nums;transition:border-color .15s,background .15s}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--p);background:var(--card);box-shadow:0 0 0 4px var(--p-soft)}
+.fm{grid-column:2;font-size:.84rem;font-weight:700}
+.fm.ok{color:var(--ok)} .fm.bad{color:var(--bad)}
+#calcref .calc{border:none;box-shadow:none;padding:14px 0;border-bottom:1px solid var(--line);border-radius:0;margin:0}
+
+/* mock / buttons */
+.mockbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px}
+.btn{border:none;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;font-size:.95rem;padding:11px 18px;border-radius:14px;cursor:pointer;box-shadow:0 6px 16px color-mix(in srgb,var(--p) 35%,transparent);transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+.result{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:18px;box-shadow:var(--sh);display:flex;gap:16px;align-items:center}
+.result .big{font-size:2.2rem;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--p),var(--p2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.result .rb{flex:1}
+.result .bar{height:10px;border-radius:5px;background:var(--sunk);overflow:hidden;display:flex;margin-top:8px}
+.result .bar i{display:block;height:100%}
+.bar .g{background:var(--ok)} .bar .r{background:var(--bad)}
+
+/* home */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.lc{display:block;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh);color:var(--ink);font-weight:400;transition:transform .15s,border-color .15s}
+.lc:hover{transform:translateY(-2px);border-color:var(--p)}
+.lc .k{font-size:.75rem;color:var(--p);font-weight:700}
+.lc h3{margin:2px 0 4px;font-size:1.05rem}
+.lc p{margin:0;font-size:.8rem;color:var(--muted)}
+.lc .bar{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;display:flex;margin-top:12px}
+.lc .bar i{display:block;height:100%}
+.kw{display:grid;gap:10px}
+.kw div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--sh)}
+@media (prefers-reduced-motion:no-preference){
+  .exp,.steps{animation:in .22s ease-out}
+  @keyframes in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style><style>
+pre.code{margin:0 0 12px;padding:12px 14px;background:var(--sunk);border:1px solid var(--line);border-radius:12px;overflow-x:auto;font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;line-height:1.55;white-space:pre;tab-size:4}
+code{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86em;background:var(--sunk);padding:.05em .35em;border-radius:5px}
+.opt span{min-width:0;overflow-wrap:anywhere}
+details.ask{background:linear-gradient(135deg,color-mix(in srgb,#FFCE33 16%,var(--card)),var(--card));border:1px solid color-mix(in srgb,#E0A800 35%,var(--line));border-radius:18px;margin-bottom:16px;box-shadow:var(--sh);overflow:hidden}
+details.ask>summary{cursor:pointer;padding:14px 18px;font-weight:700;list-style:none;font-family:"Anuphan",sans-serif;font-size:1.02rem;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.ask>summary::-webkit-details-marker{display:none}
+details.ask>summary small{font-weight:500;color:var(--muted);font-size:.78rem;font-family:"IBM Plex Sans Thai",sans-serif}
+.asklist{padding:0 18px 14px;display:grid;gap:8px}
+.ak{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.ak b{display:block;font-size:.92rem}
+.ak span{display:block;font-size:.87rem;color:var(--muted);margin-top:2px}
+.wtag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;margin-left:6px;vertical-align:middle;font-family:"IBM Plex Sans Thai",sans-serif}
+.wtag.hi{background:var(--p-soft);color:var(--p)}
+.wtag.lo{background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.lc .wtag{margin:0 0 0 4px}
+.tab.hi small::after{content:" ●";color:var(--p2)}
+.tab[aria-selected="true"].hi small::after{color:#fff}
+.qmeta{font-size:.72rem;color:var(--muted);margin:-6px 0 10px 42px}
+</style>
+</head>
+<body>
+<header class="wrap"><div class="hero"><div class="hero-in">
+  <div class="ttl"><h1>ติวสอบ Final<br>OOP · MIIC1224</h1><p>ทุกบท Lec 1 – Software Testing · เน้นสิ่งที่อาจารย์ชี้</p>
+  <div class="pills"><span>ออกตั้งแต่บทที่ 1</span><span>หลังกลางภาคออกเยอะ</span><span>ข้อ Midterm ไม่ออกซ้ำ</span><span>Practice Final 120 ข้อ</span></div></div>
+  <div class="ring" aria-hidden="true"><svg viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="42" fill="none" stroke-width="9"/><circle class="fgc" id="rfg" cx="50" cy="50" r="42" fill="none" stroke-width="9" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg><div class="rt"><b id="rpct">0%</b><small>ทำแล้ว</small></div></div>
+</div><div class="hero-stats" id="gtxt"></div></div></header>
+<nav class="tabs" aria-label="หัวข้อ"><div class="row" id="tabs" role="tablist"></div></nav>
+<main><div class="wrap" id="view"></div></main>
+<script>
+const TOPICS = [];
+
+TOPICS.push({
+  id: "l1", lec: "Lec 1", title: "Intro · Java & OOP", w: "lo",
+  ask: [
+    ["ภาษา C ไม่ใช่ OOP เพราะอะไร", "C เป็นภาษาแบบ procedural ข้อมูล (struct) กับฟังก์ชันอยู่แยกกัน ไม่มี class/object จึงไม่มี encapsulation, inheritance, polymorphism"]
+  ],
+  summary: `
+<p>OOP เป็นหนึ่งใน programming paradigm ร่วมกับ Procedural, Functional, Scripting, Logic</p>
+<h4>C (Procedural) vs Java (OOP)</h4>
+<table>
+<tr><th></th><th>C</th><th>Java</th></tr>
+<tr><td>หน่วยหลักของโปรแกรม</td><td>ฟังก์ชัน</td><td>class / object</td></tr>
+<tr><td>ข้อมูลกับการทำงาน</td><td><mark>แยกกัน</mark> (struct + ฟังก์ชัน)</td><td>รวมกันในคลาส (field + method)</td></tr>
+<tr><td>ซ่อนข้อมูล / สืบทอด / polymorphism</td><td>ไม่มีในตัวภาษา</td><td>มี</td></tr>
+</table>
+<h4>ข้อดีของ OOP (สไลด์)</h4>
+<p>โครงสร้างโปรแกรมชัดเจน · ช่วยให้โค้ด <b>DRY</b> (Don't Repeat Yourself) ดูแล แก้ไข debug ง่าย · reuse ได้ เขียนน้อยลง พัฒนาเร็วขึ้น</p>
+<h4>Java ทำงานอย่างไร</h4>
+<p><code>.java</code> → <b>javac</b> → <code>.class</code> (<mark>bytecode</mark>) → <b>JVM</b> แปลรันบนเครื่องนั้น → จึงรันได้ทุก OS ที่มี JVM (platform independent)</p>
+<p><b>JDK</b> (มี javac ไว้พัฒนา) ⊃ <b>JRE</b> (ไว้รัน) ⊃ <b>JVM</b> (ตัวรัน bytecode)</p>
+<p>ไฟล์ต้องชื่อเดียวกับ <code>public class</code> · <code>"answer = " + 3 + 4</code> → <code>answer = 34</code> แต่ <code>"answer = " + (3 + 4)</code> → <code>answer = 7</code></p>`,
+  quiz: [
+    {s:"t", q:"ทีมพัฒนาเขียนภาษา C โดยเก็บข้อมูลไว้ใน struct แล้วส่ง struct ให้ฟังก์ชันต่าง ๆ ทำงาน เหตุผลข้อใดอธิบายได้ดีที่สุดว่าทำไม C ไม่ถือเป็นภาษา OOP", o:["ข้อมูลกับฟังก์ชันที่ทำงานกับข้อมูลอยู่แยกกัน ไม่มี class ที่รวมทั้งสองส่วนและซ่อนข้อมูลไว้","C คอมไพล์เป็นภาษาเครื่องโดยตรง จึงสร้าง object ไม่ได้","C ไม่รองรับการประกาศ struct ที่มีหลาย field","C ไม่มีการเรียกฟังก์ชันซ้อนกัน"], a:0, e:"หัวใจของ OOP คือรวมข้อมูลกับพฤติกรรมไว้ใน object เดียว C++ ก็คอมไพล์เป็นภาษาเครื่องแต่ยังเป็น OOP ได้ ตัวเลือกนั้นจึงไม่ใช่เหตุผล"},
+    {s:"t", q:"ความสามารถข้อใดมีในภาษา OOP อย่าง Java แต่ไม่มีในภาษา C มาตรฐาน", o:["คลาสลูกสืบทอด field และ method จากคลาสแม่ (inheritance)","การใช้ลูป for และ while","การใช้ array เก็บข้อมูลหลายค่า","การแบ่งโปรแกรมออกเป็นฟังก์ชันย่อย"], a:0, e:"loop, array และฟังก์ชันมีใน C อยู่แล้ว ส่วน inheritance เป็นคุณสมบัติของ OOP"},
+    {s:"ex", q:"นักศึกษาคอมไพล์ Inventory.java บน macOS แล้วส่งไฟล์ .class ให้เพื่อนที่ใช้ Windows รันได้ทันที แนวคิดใดทำให้เป็นไปได้", o:["ไฟล์ .class เป็น bytecode ที่ JVM บนแต่ละระบบนำไปรันได้","javac สร้างไฟล์ .exe สำหรับทุกระบบในครั้งเดียว","ไฟล์ .class เป็นภาษาเครื่องที่ CPU ทุกรุ่นอ่านได้เหมือนกัน","Windows จะคอมไพล์ไฟล์ .java ใหม่ให้อัตโนมัติ"], a:0, e:"Write once, run anywhere: bytecode ไม่ผูกกับ CPU/OS แต่ต้องมี JVM บนเครื่องปลายทาง"},
+    {s:"ex", q:"นักศึกษาต้องการคอมไพล์ไฟล์ .java ด้วยคำสั่ง javac ต้องติดตั้งอะไร", o:["JDK","JRE อย่างเดียว","JVM อย่างเดียว","Text editor อย่างเดียว"], a:0, e:"JDK มีเครื่องมือพัฒนาอย่าง javac ส่วน JRE/JVM มีไว้รันโปรแกรมเท่านั้น"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`System.out.println("answer = " + 3 + 4);`, o:["answer = 34","answer = 7","answer = 3 + 4","คอมไพล์ไม่ผ่าน"], a:0, e:"ทำจากซ้ายไปขวา \"answer = \" + 3 กลายเป็น String แล้ว + 4 ต่อท้ายอีก ถ้าอยากได้ 7 ต้องใส่วงเล็บ (3 + 4)"},
+    {s:"ex", q:"ไฟล์ชื่อ Main.java มีเนื้อหาเป็น public class Hello { ... } จะเกิดอะไรขึ้นเมื่อคอมไพล์", o:["คอมไพล์ไม่ผ่าน เพราะ public class ต้องชื่อเดียวกับไฟล์","คอมไพล์ผ่าน และได้ไฟล์ Main.class","คอมไพล์ผ่าน แต่รันไม่ได้บน Windows","JVM จะเปลี่ยนชื่อคลาสให้อัตโนมัติ"], a:0, e:"กติกา Java: ชื่อไฟล์ต้องตรงกับ public class ในไฟล์นั้น"},
+    {s:"ex", q:"ข้อใดเป็นข้อดีของ OOP ตามที่สไลด์บทที่ 1 กล่าวไว้", o:["ช่วยให้โค้ดไม่ซ้ำ (DRY) ดูแลและแก้ไขได้ง่ายขึ้น","ทำให้โปรแกรมไม่ต้องคอมไพล์","รับประกันว่าโปรแกรมจะไม่มี bug","บังคับให้ทุกเมธอดเป็น static"], a:0, e:"สไลด์ระบุ: โครงสร้างชัด, DRY, ดูแลง่าย, reuse ได้"}
+  ]
+});
+
+TOPICS.push({
+  id: "l2", lec: "Lec 2", title: "Control · String · Regex", w: "lo",
+  ask: [
+    ["break ทำงานยังไง", "ออกจาก loop (หรือ switch) ชั้นในสุดที่มันอยู่ทันที"],
+    ["continue ทำงานยังไง", "ข้ามคำสั่งที่เหลือของรอบนี้ แล้วไปเริ่มรอบถัดไป"],
+    ["String กับ StringBuffer ต่างกันยังไง", "<mark>immutability</mark> — String แก้ค่าเดิมไม่ได้ (เมธอดคืน String ใหม่) ส่วน StringBuffer แก้ใน object เดิมได้"],
+    ["Regex: matches / replaceAll + ตารางหน้า 33, 35", "matches ต้องตรงทั้งสตริง · replaceAll แทนทุกจุดที่ตรง pattern · จำตาราง [abc] [^abc] [0-9] และ + * ? {x} {x,y} {x,}"]
+  ],
+  summary: `
+<h4>break / continue</h4>
+<p><b>break</b> = ออกจาก loop ชั้นในสุดทันที · <b>continue</b> = ข้ามไปรอบถัดไป · ใน <code>switch</code> ถ้าลืม break จะ <mark>ตกต่อ (fall-through)</mark> ไป case ถัดไป</p>
+<h4>String</h4>
+<p><code>String name</code> คือ <b>reference</b> ที่ชี้ไปยัง object · เทียบเนื้อหาใช้ <code>equals()</code> ไม่ใช่ <code>==</code> (== เทียบว่าเป็น object เดียวกันไหม)</p>
+<p>เมธอด: <code>length()</code> · <code>charAt(i)</code> เริ่มที่ 0 · <code>indexOf()</code> · <code>substring(a, b)</code> เอาตำแหน่ง a ถึง b−1 → <code>"Smith".substring(1,3)</code> = <code>"mi"</code></p>
+<p><mark>String Immutability</mark>: สร้างแล้วเปลี่ยนไม่ได้ <code>toUpperCase()</code>, <code>concat()</code>, <code>+=</code> ล้วนสร้าง String ใหม่ ต่อในลูป 100 รอบ = สร้าง object ใหม่ 100 ตัว</p>
+<h4>StringBuffer</h4>
+<p>แก้ค่าใน object เดิมได้ → <mark>ประหยัดหน่วยความจำและเวลา</mark> · <code>append()</code> ต่อท้าย · <code>insert(i, s)</code> แทรก · <code>delete(a, b)</code> ลบ a ถึง b−1</p>
+<p>ตัวอย่างสไลด์: <code>"John"</code> → append " Hunter" → insert(4,"y") = <code>Johny Hunter</code> → delete(2,4) = <code>Joy Hunter</code></p>
+<p class="note">StringBuilder มีเมธอดเหมือน StringBuffer และเร็วกว่า · สไลด์หน้า 31 เขียนว่า StringBuilder "safe for multiple threads" แต่ตามเอกสาร Java จริง ๆ <b>StringBuffer</b> คือตัวที่ synchronized (thread-safe) ส่วน StringBuilder ไม่ sync จึงเร็วกว่า ถ้าเจอข้อสอบเรื่องนี้ให้ระวัง</p>
+<h4>Regular Expression</h4>
+<table>
+<tr><th>รูปแบบ</th><th>ความหมาย</th></tr>
+<tr><td><code>[abc]</code></td><td>ตัวอักษร 1 ตัวที่เป็น a, b หรือ c</td></tr>
+<tr><td><code>[^abc]</code></td><td>ตัวอักษร 1 ตัวที่<b>ไม่ใช่</b> a, b, c</td></tr>
+<tr><td><code>[0-9]</code> / <code>\\d</code></td><td>ตัวเลข 1 หลัก</td></tr>
+<tr><td><code>.</code> / <code>\\s</code></td><td>อักขระใดก็ได้ 1 ตัว / ช่องว่าง</td></tr>
+<tr><td><code>^</code> / <code>$</code> / <code>|</code></td><td>ต้นสตริง / ท้ายสตริง / หรือ (cat|dog)</td></tr>
+<tr><td><code>n+</code> <code>n*</code> <code>n?</code></td><td>≥1 ตัว · ≥0 ตัว · 0 หรือ 1 ตัว</td></tr>
+<tr><td><code>n{x}</code> <code>n{x,y}</code> <code>n{x,}</code></td><td>x ตัวพอดี · x ถึง y ตัว · อย่างน้อย x ตัว</td></tr>
+</table>
+<p><code>s.matches(p)</code> → true เมื่อ <mark>ทั้งสตริง</mark> ตรง pattern · <code>s.replaceAll(p, r)</code> → แทนทุกส่วนที่ตรง เช่น <code>replaceAll("[aeiou]", "?")</code> แทนสระทุกตัวด้วย ?</p>`,
+  quiz: [
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`for (int i = 1; i <= 5; i++) {
+    if (i == 3) break;
+    System.out.print(i);
+}`, o:["12","1245","123","12345"], a:0, e:"เมื่อ i = 3 break ออกจาก loop ทันที จึงพิมพ์แค่ 1 กับ 2"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`for (int i = 1; i <= 5; i++) {
+    if (i == 3) continue;
+    System.out.print(i);
+}`, o:["1245","12","345","12345"], a:0, e:"continue ข้ามเฉพาะรอบ i = 3 แล้วทำรอบต่อไปตามปกติ"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < 3; j++) {
+        if (j == 1) break;
+        System.out.print(i + "" + j + " ");
+    }
+}`, o:["00 10","00 01 02 10 11 12","00","00 01 10 11"], a:0, e:"break ออกเฉพาะลูป j (ชั้นในสุด) ลูป i ยังทำต่อ แต่ละรอบ i จึงพิมพ์แค่ j = 0"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`String s = "Smith";
+s.toUpperCase();
+System.out.println(s);`, o:["Smith","SMITH","smith","คอมไพล์ไม่ผ่าน"], a:0, e:"String เป็น immutable — toUpperCase() คืน String ใหม่ แต่ไม่ได้เก็บไว้ s จึงยังเป็นค่าเดิม"},
+    {s:"t", q:"ตัวแปร a และ b อ้างถึง StringBuffer ตัวเดียวกัน โปรแกรมพิมพ์อะไร", c:`StringBuffer a = new StringBuffer("ab");
+StringBuffer b = a;
+b.append("c");
+a.append("d");
+System.out.println(a);`, o:["abcd","abd","abc","ab"], a:0, e:"b = a คือคัดลอก reference ไม่ได้สร้าง object ใหม่ แก้ผ่านตัวไหนก็เปลี่ยน object เดียวกัน"},
+    {s:"t", q:"ต้องต่อข้อความ 10,000 รอบในลูป เหตุใดควรใช้ StringBuffer แทน String", o:["StringBuffer แก้ค่าใน object เดิมได้ ไม่ต้องสร้าง object ใหม่ทุกรอบ จึงประหยัดหน่วยความจำและเวลา","String ต่อข้อความเกิน 1,000 ตัวอักษรไม่ได้","StringBuffer ทำให้โปรแกรมไม่ต้องใช้ garbage collector","String ใช้กับลูป for ไม่ได้"], a:0, e:"String เป็น immutable การ += แต่ละครั้งสร้าง String ใหม่ ส่วน StringBuffer เป็น mutable"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`StringBuffer sb = new StringBuffer("John");
+sb.append(" Hunter");
+sb.insert(4, "y");
+sb.delete(2, 4);
+System.out.println(sb);`, o:["Joy Hunter","Johny Hunter","Jony Hunter","Jo Hunter"], a:0, e:"John Hunter → insert(4,\"y\") = Johny Hunter → delete(2,4) ลบตำแหน่ง 2–3 (\"hn\") = Joy Hunter (ตัวอย่างในสไลด์)"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`String a = new String("Smith");
+String b = new String("Smith");
+System.out.println((a == b) + " " + a.equals(b));`, o:["false true","true true","true false","false false"], a:0, e:"== เทียบว่าเป็น object เดียวกันไหม (คนละ object → false) ส่วน equals เทียบเนื้อหา (true)"},
+    {s:"t", q:"ระบบตรวจรหัสด้วย s.matches(\"[a-z][0-9]{2,3}\") คู่ใดผ่านเงื่อนไขทั้งสองค่า", o:["a12 และ b345","a1 และ b22","A12 และ c34","x123 และ y1234"], a:0, e:"ต้องขึ้นต้นด้วยตัวพิมพ์เล็ก 1 ตัว ตามด้วยตัวเลข 2–3 หลัก และต้องตรงทั้งสตริง: a1 มีเลขหลักเดียว, A เป็นพิมพ์ใหญ่, y1234 มีเลข 4 หลัก"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`System.out.println("banana".replaceAll("[an]", "*"));`, o:["b*****","b*n*n*","*a*a*a","banana"], a:0, e:"[an] ตรงกับทั้ง a และ n ทุกตัว จึงถูกแทนด้วย * ทั้งหมด เหลือแค่ b"},
+    {s:"ex", q:"pattern \"colou?r\" ใช้กับ matches() แล้วค่าใดผ่านทั้งคู่", o:["color และ colour","colour และ colouur","color และ colr","colouur และ colour"], a:0, e:"u? แปลว่า u ปรากฏ 0 หรือ 1 ครั้ง"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`String name = "Smith";
+System.out.println(name.charAt(2) + name.substring(1, 3));`, o:["imi","im","mii","คอมไพล์ไม่ผ่าน"], a:0, e:"charAt(2) = 'i', substring(1,3) = \"mi\" (ตำแหน่ง 1–2) char + String = ต่อข้อความ → imi"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`int day = 2;
+switch (day) {
+    case 1: System.out.print("A");
+    case 2: System.out.print("B");
+    case 3: System.out.print("C"); break;
+    default: System.out.print("D");
+}`, o:["BC","B","BCD","ABC"], a:0, e:"เข้า case 2 พิมพ์ B แล้วไม่มี break จึงตกต่อไป case 3 พิมพ์ C แล้วเจอ break"}
+  ]
+});
+
+TOPICS.push({
+  id: "l3", lec: "Lec 3", title: "Class & Object", w: "lo",
+  ask: [
+    ["Encapsulation คืออะไร (หน้า 12)", "การห่อหุ้ม — รวม field กับ method ไว้ในคลาส"],
+    ["Information hiding คืออะไร (หน้า 12)", "ซ่อนข้อมูล/วิธีการทำงานภายใน (private) ให้ภายนอกใช้ผ่านเมธอดเท่านั้น"],
+    ["Class คืออะไร / Object คืออะไร (หน้า 15)", "Class = แม่แบบ (<code>class Student</code>) · Object = ตัวจริงที่สร้างจากแม่แบบ (<code>new Student()</code>) — โน้ตเพื่อนเขียนสลับกัน"],
+    ["Abstraction คืออะไร (หน้า 16)", "เลือกกำหนดเฉพาะคุณสมบัติที่จำเป็นต่อระบบ ตัดรายละเอียดที่ไม่เกี่ยวออก"],
+    ["Constructor คืออะไร (หน้า 35)", "เมธอดพิเศษชื่อเดียวกับคลาส ไม่มี return type ทำงานตอน new เพื่อกำหนดค่าเริ่มต้น"],
+    ["Method overloading คืออะไร (หน้า 39)", "เมธอดชื่อเดียวกันแต่ parameter ต่างกัน (จำนวน/ชนิด/ลำดับ)"],
+    ["Static method คืออะไร (หน้า 62)", "เมธอดของคลาส เรียกผ่านชื่อคลาสได้โดยไม่ต้องสร้าง object"],
+    ["final ใช้ทำอะไร (หน้า 64)", "ตัวแปร = ค่าคงที่ · เมธอด = ห้าม override · คลาส = ห้าม extends"],
+    ["Package (เพื่อนเขียนสีแดง)", "กลุ่มของคลาส + ระดับการเข้าถึงแบบ default (package-private)"]
+  ],
+  summary: `
+<h4>4 คำศัพท์หลัก</h4>
+<table>
+<tr><th>คำ</th><th>ความหมาย</th><th>ในโค้ด</th></tr>
+<tr><td>Encapsulation</td><td>ห่อหุ้มข้อมูล + เมธอดไว้ด้วยกัน</td><td>field + method อยู่ในคลาสเดียว</td></tr>
+<tr><td>Information hiding</td><td>ซ่อนรายละเอียดภายใน</td><td>field เป็น <code>private</code> ใช้ getter/setter</td></tr>
+<tr><td>Abstraction</td><td>เลือกเฉพาะสิ่งที่จำเป็น</td><td>Student มี id, name ไม่ต้องมีเบอร์รองเท้า</td></tr>
+<tr><td>Class / Object</td><td>แม่แบบ / ตัวจริง</td><td><code>class Student</code> / <code>new Student()</code></td></tr>
+</table>
+<h4>Constructor</h4>
+<p>ชื่อเดียวกับคลาส · <mark>ไม่มี return type</mark> (แม้แต่ void) · overload ได้ · <code>this(...)</code> เรียก constructor ตัวอื่นในคลาสเดียวกัน · ถ้าพารามิเตอร์ชื่อซ้ำ field ต้องใช้ <code>this.price = price</code> ไม่งั้นแค่กำหนดค่าให้ตัวพารามิเตอร์เอง</p>
+<h4>Overloading</h4>
+<p>ชื่อเดียวกัน <mark>parameter list ต่างกัน</mark> · ต่างแค่ return type อย่างเดียว <b>ไม่ได้</b> → คอมไพล์ไม่ผ่าน</p>
+<h4>static</h4>
+<p>เป็นของคลาส มีชุดเดียวใช้ร่วมกันทุก object · static method <mark>ใช้ instance field ตรง ๆ ไม่ได้</mark> (ไม่รู้ว่า object ไหน) · เรียกได้ <code>Math.max(a,b)</code></p>
+<h4>final</h4>
+<p>ตัวแปร final กำหนดค่าได้ครั้งเดียว · method final ห้าม override · class final ห้ามมีคลาสลูก</p>
+<h4>Access modifier</h4>
+<table>
+<tr><th></th><th>คลาสเดียวกัน</th><th>package เดียวกัน</th><th>คลาสลูกต่าง package</th><th>ที่อื่น</th></tr>
+<tr><td><code>public</code></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td><code>protected</code></td><td>✓</td><td>✓</td><td>✓</td><td>✗</td></tr>
+<tr><td>(ไม่ใส่) default</td><td>✓</td><td>✓</td><td>✗</td><td>✗</td></tr>
+<tr><td><code>private</code></td><td>✓</td><td>✗</td><td>✗</td><td>✗</td></tr>
+</table>`,
+  quiz: [
+    {s:"t", q:"คลาส Account ประกาศ public double balance ทำให้โค้ดภายนอกตั้งยอดเงินติดลบได้ วิธีใดตรงกับหลัก encapsulation / information hiding ที่สุด", o:["เปลี่ยน balance เป็น private แล้วให้แก้ผ่านเมธอด deposit/withdraw ที่ตรวจเงื่อนไข","เปลี่ยน balance เป็น static","เพิ่มคอมเมนต์ห้ามใส่ค่าติดลบ","เปลี่ยนชนิดเป็น int"], a:0, e:"ซ่อน field ไว้ แล้วเปิดเฉพาะเมธอดที่คุมกติกาได้"},
+    {s:"t", q:"จากโค้ด Student s = new Student(); ข้อใดถูกต้อง", o:["Student คือคลาส (แม่แบบ) ส่วนสิ่งที่ new Student() สร้างขึ้นคือ object","Student คือ object ส่วน s คือคลาส","new Student() คือคลาส ส่วน Student คือ object","s คือคลาสที่เก็บ object Student"], a:0, e:"class = แม่แบบ, object = instance ที่สร้างจาก new · ตัวแปร s เป็น reference ชี้ไปยัง object"},
+    {s:"t", q:"ออกแบบคลาส Student สำหรับระบบลงทะเบียน โดยเก็บเพียงรหัส ชื่อ และรายวิชา ไม่เก็บสีโปรดหรือส่วนสูง เป็นการใช้แนวคิดใด", o:["Abstraction","Inheritance","Polymorphism","Overloading"], a:0, e:"Abstraction คือเลือกเฉพาะคุณสมบัติที่จำเป็นต่อปัญหา"},
+    {s:"t", q:"เมื่อสร้าง new Meter() ค่า value จะเป็นเท่าไร", c:`class Meter {
+    int value;
+    Meter() { this(10); }
+    Meter(int v) { value = v; }
+}`, o:["10","0","คอมไพล์ไม่ผ่าน เพราะ constructor เรียกกันเองไม่ได้","null"], a:0, e:"this(10) เรียก constructor อีกตัวในคลาสเดียวกัน จึงได้ value = 10"},
+    {s:"t", q:"ผู้พัฒนาคาดว่า new Ticket(50) จะได้ราคา 50 แต่พิมพ์ออกมาเป็น 0 สาเหตุคืออะไร", c:`class Ticket {
+    int price;
+    Ticket(int price) { price = price; }
+}`, o:["price = price กำหนดค่าให้พารามิเตอร์ตัวเอง field ไม่ถูกแก้ ต้องเขียน this.price = price","constructor ต้องมี return type เป็น void","int ต้องเริ่มต้นเป็น 0 เสมอ แก้ไม่ได้","ต้องประกาศ price เป็น static"], a:0, e:"ชื่อพารามิเตอร์บัง (shadow) field ไว้ ต้องใช้ this. เพื่ออ้างถึง field"},
+    {s:"t", q:"ประกาศสองเมธอดนี้ในคลาสเดียวกัน ผลคืออะไร", c:`int parse(String s) { ... }
+double parse(String s) { ... }`, o:["คอมไพล์ไม่ผ่าน เพราะ overloading ต้องต่างกันที่ parameter ไม่ใช่แค่ return type","คอมไพล์ผ่าน Java เลือกตามชนิดตัวแปรที่รับค่า","คอมไพล์ผ่าน แต่จะเรียกตัวที่ประกาศก่อนเสมอ","คอมไพล์ผ่าน ถ้าเป็นเมธอด static"], a:0, e:"signature ของเมธอด = ชื่อ + parameter list ไม่รวม return type สองเมธอดนี้จึงซ้ำกัน"},
+    {s:"t", q:"ทำไมโค้ดนี้คอมไพล์ไม่ผ่าน", c:`class Employee {
+    String name;
+    static void printName() {
+        System.out.println(name);
+    }
+}`, o:["static method อ้าง instance field ตรง ๆ ไม่ได้ เพราะไม่รู้ว่าเป็นของ object ไหน","println ใช้ใน static method ไม่ได้","name ต้องประกาศเป็น final","คลาสที่มี static method ต้องเป็น abstract"], a:0, e:"แก้โดยเอา static ออก หรือรับ object Employee เป็นพารามิเตอร์แล้วใช้ e.name"},
+    {s:"t", q:"ข้อใดถูกต้องเกี่ยวกับ final", o:["เมธอดที่ประกาศ final คลาสลูกจะ override ไม่ได้","ตัวแปร final เปลี่ยนค่าได้ไม่จำกัดแต่ต้องเป็นตัวเลข","คลาส final ต้องมีคลาสลูกอย่างน้อยหนึ่งคลาส","final ทำให้ตัวแปรกลายเป็น static อัตโนมัติ"], a:0, e:"final: ตัวแปร = กำหนดครั้งเดียว, เมธอด = ห้าม override, คลาส = ห้าม extends"},
+    {s:"t", q:"คลาส ParseHelper และ ImportJob อยู่ใน package tools ต้องการให้ normalize() เรียกได้เฉพาะคลาสใน package tools เท่านั้น ควรประกาศอย่างไร", o:["String normalize(String text) — ไม่ใส่ access modifier","private String normalize(String text)","public String normalize(String text)","public static String normalize(String text)"], a:0, e:"ไม่ใส่ modifier = default (package-private) เข้าถึงได้เฉพาะใน package เดียวกัน · private แคบเกิน (เฉพาะคลาสตัวเอง)"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`class C {
+    static int count = 0;
+    C() { count++; }
+}
+// ใน main
+new C(); new C(); new C();
+System.out.println(C.count);`, o:["3","1","0","คอมไพล์ไม่ผ่าน"], a:0, e:"static field มีชุดเดียวใช้ร่วมกันทุก object การสร้าง 3 ครั้งจึงเพิ่มตัวเดียวกัน 3 ครั้ง"}
+  ]
+});
+
+TOPICS.push({
+  id: "l4", lec: "Lec 4", title: "Inheritance & Polymorphism", w: "lo",
+  ask: [
+    ["Inheritance (การสืบทอด) คืออะไร", "คลาสลูก <code>extends</code> คลาสแม่ แล้วได้ field/method ของแม่มาใช้และเพิ่ม/แก้เองได้"],
+    ["คลาส Object คืออะไร (หน้า 28)", "คลาสบนสุดของทุกคลาสใน Java ทุกคลาสสืบทอดจาก Object อัตโนมัติ"],
+    ["Polymorphism คืออะไร", "เรียกเมธอดชื่อเดียวกัน แต่ทำงานต่างกันตามชนิด object จริง (หลายรูปแบบ)"],
+    ["protected คืออะไร", "เข้าถึงได้จาก 1) package เดียวกัน 2) คลาสลูก (แม่-ลูก) แม้อยู่ต่าง package"],
+    ["toString ใช้ทำอะไร", "คืนข้อความแทน object ถูกเรียกอัตโนมัติตอน println(obj) หรือต่อ String ควร override ให้แสดงข้อมูลที่ต้องการ"]
+  ],
+  summary: `
+<h4>Inheritance</h4>
+<p><code>class B extends A</code> · Java ให้ <mark>extends ได้คลาสเดียว</mark> (single inheritance) · constructor ลูกเรียก <code>super(...)</code> ของแม่ก่อนเสมอ (ถ้าไม่เขียน Java ใส่ super() ให้)</p>
+<h4>คลาส Object</h4>
+<p>รากของทุกคลาส → ทุก object มีเมธอด <code>toString()</code>, <code>equals()</code>, <code>hashCode()</code>, <code>getClass()</code> · toString ตั้งต้นพิมพ์แบบ <code>Badge@1b6d3586</code> (ชื่อคลาส@hash)</p>
+<h4>Polymorphism</h4>
+<p><code>Animal a = new Dog(); a.sound();</code> → เรียก <b>sound() ของ Dog</b> เพราะ Java เลือกเมธอดตาม <mark>object จริงตอนรัน</mark> (dynamic binding)</p>
+<table>
+<tr><th></th><th>Overloading</th><th>Overriding</th></tr>
+<tr><td>ที่ไหน</td><td>คลาสเดียวกัน</td><td>คลาสลูกเขียนทับของแม่</td></tr>
+<tr><td>parameter</td><td>ต้องต่างกัน</td><td>ต้องเหมือนเดิม</td></tr>
+<tr><td>ตัดสินตอน</td><td>คอมไพล์</td><td>รัน</td></tr>
+</table>
+<p><code>@Override</code> ช่วยให้ compiler ตรวจว่า override จริง ถ้าพิมพ์ signature ผิดจะคอมไพล์ไม่ผ่าน</p>
+<h4>toString ที่ถูกต้อง</h4>
+<p><code>@Override public String toString() { return "..."; }</code> — ต้อง public, คืน String, ไม่มีพารามิเตอร์</p>`,
+  quiz: [
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`class A { String who() { return "A"; } }
+class B extends A { String who() { return "B"; } }
+// ใน main
+A x = new B();
+System.out.println(x.who());`, o:["B","A","AB","คอมไพล์ไม่ผ่าน"], a:0, e:"Polymorphism: แม้ตัวแปรเป็นชนิด A แต่ object จริงคือ B จึงเรียก who() ของ B"},
+    {s:"t", q:"คลาส Badge ไม่ได้เขียน extends อะไรเลย แต่เรียก b.toString() และ b.equals(x) ได้ เพราะอะไร", o:["ทุกคลาสสืบทอดจากคลาส Object โดยอัตโนมัติ","Java เพิ่มเมธอดให้ทุกคลาสตอนรันด้วย reflection","toString และ equals เป็นเมธอด static ของ System","คอมไพเลอร์คัดลอกเมธอดจาก String มาให้"], a:0, e:"Object เป็นรากของลำดับชั้นคลาสใน Java"},
+    {s:"t", q:"คลาส Base อยู่ package core ประกาศ protected int value ข้อใด เข้าถึง value ไม่ได้", o:["คลาสใน package อื่นที่ไม่ได้สืบทอดจาก Base","คลาสอื่นใน package core","คลาสลูกของ Base ที่อยู่ package feature (ผ่านการสืบทอด)","คลาส Base เอง"], a:0, e:"protected = package เดียวกัน + คลาสลูก · คลาสต่าง package ที่ไม่ใช่ลูกเข้าไม่ได้"},
+    {s:"t", q:"ต้องการให้ System.out.println(device) แสดงข้อความที่กำหนดเอง ควรเขียนเมธอดใดในคลาส Device", o:["public String toString()","public void toString()","String tostring()","public String toString(String format)"], a:0, e:"ต้องตรง signature ของ Object.toString(): public, คืน String, ไม่มีพารามิเตอร์"},
+    {s:"t", q:"ข้อใดอธิบาย polymorphism ได้ถูกต้อง", o:["การเรียกเมธอดเดียวกันผ่านตัวแปรชนิดแม่ แล้วได้พฤติกรรมต่างกันตามชนิด object จริง","การมีคลาสแม่หลายคลาสในเวลาเดียวกัน","การซ่อน field ไว้เป็น private","การสร้าง object ได้เพียงตัวเดียวทั้งโปรแกรม"], a:0, e:"Poly = หลาย, morph = รูปแบบ ข้อ 2 Java ทำไม่ได้, ข้อ 3 คือ encapsulation, ข้อ 4 คือ Singleton"},
+    {s:"t", q:"การสืบทอด (inheritance) ช่วยเรื่องใดเป็นหลัก", o:["นำ field และ method ของคลาสแม่มาใช้ซ้ำ แล้วเพิ่มหรือปรับเฉพาะส่วนที่ต่าง","ทำให้คลาสลูกเข้าถึง private field ของแม่ได้","ทำให้ไม่ต้องสร้าง object","ทำให้โปรแกรมรันหลาย thread ได้"], a:0, e:"private ของแม่ คลาสลูกยังเข้าถึงตรง ๆ ไม่ได้"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไรเมื่อสร้าง new C()", c:`class P { P() { System.out.print("P"); } }
+class C extends P { C() { System.out.print("C"); } }`, o:["PC","CP","C","P"], a:0, e:"constructor ลูกเรียก super() ของแม่ก่อนเสมอ"},
+    {s:"ex", q:"ต้องการให้คลาส Robot ได้ความสามารถจากทั้ง Machine และ Toy ซึ่งเป็นคลาสทั้งคู่ ข้อใดถูก", o:["Java ไม่ให้ extends สองคลาส ควรทำอย่างน้อยหนึ่งตัวเป็น interface แล้ว implements","class Robot extends Machine, Toy","class Robot extends Machine extends Toy","class Robot implements Machine, Toy ใช้กับคลาสได้"], a:0, e:"Java มี single inheritance ของคลาส แต่ implements ได้หลาย interface"},
+    {s:"ex", q:"คลาสลูกต้องการ override save(String) แต่เขียนเป็น save(Object) และใส่ @Override ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน เพราะ save(Object) ไม่ได้ override เมธอดใดของคลาสแม่","คอมไพล์ผ่าน และ override สำเร็จ","คอมไพล์ผ่าน แต่ @Override ถูกละเลย","รันแล้วเกิด ClassCastException"], a:0, e:"เปลี่ยนชนิดพารามิเตอร์ = overloading ไม่ใช่ overriding @Override จึงแจ้ง error"},
+    {s:"ex", q:"คลาส Badge ไม่ได้ override toString เมื่อ println(new Badge()) จะเห็นอะไร", o:["ข้อความรูปแบบ Badge@ตามด้วยเลขฐานสิบหก","ค่าว่าง","ชื่อ field ทั้งหมดในคลาส","คอมไพล์ไม่ผ่าน"], a:0, e:"Object.toString() ตั้งต้นคืน ชื่อคลาส@hashCode (ฐาน 16)"}
+  ]
+});
+
+TOPICS.push({
+  id: "l5", lec: "Lec 5", title: "Interface · Abstract · Enum", w: "lo",
+  ask: [
+    ["Interface คืออะไร / implements", "สัญญาที่บอกว่าคลาสต้องมีเมธอดอะไร คลาสใช้ <code>implements</code> แล้วต้องเขียนเมธอดครบ · implements ได้หลาย interface"]
+  ],
+  summary: `
+<h4>Interface</h4>
+<p>เป็น <mark>สัญญา (contract)</mark> บอกว่าต้องมีเมธอดอะไร ไม่บอกว่าทำอย่างไร · <code>class Car implements Drivable, Comparable&lt;Car&gt;</code> ได้หลายตัว · interface สืบทอด interface ใช้ <code>extends</code></p>
+<p>เมธอดใน interface เป็น <code>public abstract</code> โดยปริยาย · field เป็น <code>public static final</code> (ค่าคงที่) · มี <code>default</code> method ที่มีโค้ดได้ (Java 8+) คลาสไม่ต้องเขียนเอง</p>
+<p>คลาสปกติ (concrete) ที่ implements ต้องเขียน abstract method <mark>ครบทุกตัว</mark> ไม่งั้นคอมไพล์ไม่ผ่าน (หรือต้องประกาศเป็น abstract class)</p>
+<h4>Abstract class</h4>
+<p>สร้าง object ตรง ๆ ไม่ได้ (<code>new Shape()</code> ✗) · มี field, constructor, เมธอดปกติได้ · คลาสลูก extends ได้ตัวเดียว</p>
+<table>
+<tr><th></th><th>Interface</th><th>Abstract class</th></tr>
+<tr><td>ใช้กับคลาส</td><td>implements ได้หลายตัว</td><td>extends ได้ตัวเดียว</td></tr>
+<tr><td>field</td><td>ค่าคงที่เท่านั้น</td><td>มี state ได้</td></tr>
+<tr><td>constructor</td><td>ไม่มี</td><td>มี (เรียกผ่าน super)</td></tr>
+<tr><td>เหมาะกับ</td><td>บอก "ทำอะไรได้"</td><td>แชร์โค้ดของตระกูลเดียวกัน</td></tr>
+</table>
+<h4>Enum</h4>
+<p><code>enum Direction { NORTH, SOUTH, EAST, WEST }</code> → ชุดค่าคงที่ที่จำกัด compiler กันค่าอื่นให้</p>`,
+  quiz: [
+    {s:"t", q:"interface Ready มี abstract method ready() คลาสปกติ Sensor implements Ready แต่ไม่ได้เขียน ready() ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน ต้องเขียน ready() หรือประกาศ Sensor เป็น abstract","คอมไพล์ผ่าน ready() จะคืน null","คอมไพล์ผ่าน แต่เรียก ready() แล้วโปรแกรมพัง","Java สร้าง ready() ว่าง ๆ ให้อัตโนมัติ"], a:0, e:"concrete class ต้อง implement abstract method ครบ"},
+    {s:"t", q:"การประกาศคลาสข้อใดถูกต้อง เมื่อ Runnable และ AutoCloseable เป็น interface", o:["class Job implements Runnable, AutoCloseable","class Job extends Runnable, AutoCloseable","class Job implements Runnable implements AutoCloseable","class Job extends Runnable implements AutoCloseable"], a:0, e:"คลาส implements ได้หลาย interface คั่นด้วยจุลภาค"},
+    {s:"t", q:"interface Shape ต้องการสืบทอดเมธอดจาก interface Drawable ควรเขียนอย่างไร", o:["interface Shape extends Drawable","interface Shape implements Drawable","class Shape implements Drawable","interface Shape inherits Drawable"], a:0, e:"interface กับ interface ใช้ extends · คลาสกับ interface ใช้ implements"},
+    {s:"ex", q:"interface Ready มี ready() (abstract) และ label() เป็น default method คลาสปกติ Sensor implements Ready ต้องเขียนเมธอดใดบ้าง", o:["ready() อย่างเดียว","ทั้ง ready() และ label()","label() อย่างเดียว","ไม่ต้องเขียนเลย"], a:0, e:"default method มีโค้ดอยู่แล้ว จะ override หรือไม่ก็ได้"},
+    {s:"ex", q:"Shape เป็น abstract class ที่มี constructor คำสั่ง new Shape() ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน abstract class สร้าง object ตรง ๆ ไม่ได้","คอมไพล์ผ่าน ได้ object ที่ไม่มีเมธอด","คอมไพล์ผ่าน ถ้าไม่มี abstract method","รันแล้วเกิด NullPointerException"], a:0, e:"constructor ของ abstract class มีไว้ให้คลาสลูกเรียกผ่าน super()"},
+    {s:"ex", q:"โปรแกรมเล่นเสียงต้องรองรับตัวถอดรหัสหลายชนิดและเพิ่มชนิดใหม่ในอนาคต ส่วนที่เรียกใช้ควรพึ่งพาอะไร", o:["interface Decoder ที่ตัวถอดรหัสทุกชนิด implements","คลาส Mp3Decoder โดยตรง","switch-case ตามนามสกุลไฟล์ในทุกจุดที่เรียก","static method ใน Main"], a:0, e:"เขียนโค้ดกับ interface ทำให้สลับหรือเพิ่ม implementation ได้โดยไม่ต้องแก้ผู้เรียก"},
+    {s:"ex", q:"ต้องเก็บค่าทิศทางให้รับได้เฉพาะ NORTH, SOUTH, EAST, WEST และให้ compiler ช่วยกันค่าที่ไม่ถูกต้อง ควรใช้อะไร", o:["enum Direction { NORTH, SOUTH, EAST, WEST }","String แล้วตรวจด้วย if ทุกครั้ง","int 0–3","char 'N','S','E','W'"], a:0, e:"enum เป็นชนิดข้อมูลที่มีค่าจำกัด ส่งค่าอื่นเข้าไปจะคอมไพล์ไม่ผ่าน"},
+    {s:"ex", q:"ประกาศ int MAX = 5; ไว้ใน interface ตัวแปรนี้มีคุณสมบัติใด", o:["public static final","private ต่อ object","protected และแก้ค่าได้","ต้องกำหนดค่าใหม่ในทุกคลาสที่ implements"], a:0, e:"field ใน interface เป็นค่าคงที่ public static final โดยปริยาย"}
+  ]
+});
+TOPICS.push({
+  id: "l6", lec: "Lec 6", title: "Generics", w: "lo",
+  ask: [
+    ["Generics List&lt;T&gt; คืออะไร", "T คือ <b>Type</b> parameter — กำหนดชนิดข้อมูลตอนใช้งานได้ เช่น <code>List&lt;String&gt;</code>"]
+  ],
+  summary: `
+<p>Generics = เขียนคลาส/เมธอดครั้งเดียว ใช้ได้กับหลายชนิดข้อมูล โดย <code>T</code> แทนชนิดที่จะกำหนดตอนใช้</p>
+<h4>ทำไมต้องใช้</h4>
+<p>1) <mark>ตรวจชนิดตอนคอมไพล์</mark> → ใส่ผิดชนิดคอมไพล์ไม่ผ่านทันที 2) <mark>ไม่ต้อง cast</mark> ตอนดึงค่าออก</p>
+<h4>รูปแบบ</h4>
+<p>คลาส: <code>class Box&lt;T&gt; { T value; }</code> → <code>Box&lt;String&gt;</code><br>เมธอด: <code>static &lt;T&gt; T last(List&lt;T&gt; list)</code> → ชนิดที่คืนตรงกับชนิดสมาชิกของ list<br>ตัวย่อ: <code>T</code> Type · <code>E</code> Element · <code>K, V</code> Key/Value</p>
+<h4>ข้อควรจำ</h4>
+<p>ใช้ primitive ไม่ได้: <code>List&lt;int&gt;</code> ✗ → ใช้ wrapper <code>List&lt;Integer&gt;</code> ✓</p>
+<p><code>List&lt;Integer&gt;</code> <mark>ไม่ใช่</mark> <code>List&lt;Number&gt;</code> แม้ Integer เป็นลูกของ Number (ถ้ายอมให้ส่งได้ เมธอดปลายทางจะ add 2.5 ลงใน list ของ Integer ได้)</p>
+<p>Wildcard: <code>List&lt;? extends Number&gt;</code> อ่านเป็น Number ได้ · <code>List&lt;? super Integer&gt;</code> ใส่ Integer ได้</p>`,
+  quiz: [
+    {s:"t", q:"บรรทัดใดคอมไพล์ไม่ผ่าน", c:`List<String> labels = new ArrayList<>();
+labels.add("A");        // (1)
+labels.add(5);          // (2)
+String x = labels.get(0); // (3)`, o:["(2)","(1)","(3)","ไม่มี คอมไพล์ผ่านทั้งหมด"], a:0, e:"labels กำหนดให้รับ String เท่านั้น ใส่ int จึงผิดตอนคอมไพล์ และ get ไม่ต้อง cast"},
+    {s:"t", q:"ประโยชน์หลักของ Generics คือข้อใด", o:["ตรวจชนิดข้อมูลได้ตั้งแต่ตอนคอมไพล์และไม่ต้อง cast ตอนดึงค่า","ทำให้ List เก็บ primitive อย่าง int ได้โดยตรง","ทำให้โปรแกรมรันหลาย thread อัตโนมัติ","ทำให้ ArrayList มีขนาดคงที่"], a:0, e:"Generics ย้ายการตรวจชนิดจากตอนรันมาเป็นตอนคอมไพล์"},
+    {s:"t", q:"ต้องการเมธอด last ตัวเดียวที่ใช้กับ List ทุกชนิด และชนิดที่คืนตรงกับชนิดสมาชิกของ List ควรประกาศอย่างไร", o:["public static <T> T last(List<T> list)","public static Object last(List<Object> list)","public static T last(List list)","public static <T> Object last(T list)"], a:0, e:"ประกาศ <T> หน้า return type แล้วใช้ T ทั้งพารามิเตอร์และค่าที่คืน"},
+    {s:"ex", q:"คำสั่ง List<int> nums = new ArrayList<>(); ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน ต้องใช้ List<Integer>","คอมไพล์ผ่าน ใช้งานได้ปกติ","คอมไพล์ผ่าน แต่ add ได้แค่เลขบวก","รันแล้วเกิด ClassCastException"], a:0, e:"type argument ต้องเป็นชนิด reference ใช้ wrapper class แทน primitive"},
+    {s:"ex", q:"เมธอด addFraction(List<Number> values) เรียก values.add(2.5) ถ้าส่ง List<Integer> เข้าไป ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน เพราะ List<Integer> ไม่ใช่ชนิดย่อยของ List<Number>","คอมไพล์ผ่าน และ 2.5 ถูกปัดเป็น 2","คอมไพล์ผ่าน แต่รันแล้ว list มี Double ปนอยู่","คอมไพล์ผ่าน เพราะ Integer เป็นลูกของ Number"], a:0, e:"Generics เป็น invariant ถ้ายอมให้ส่งได้ list ของ Integer จะถูกใส่ Double ปน ซึ่งทำลาย type safety"},
+    {s:"ex", q:"คลาส Box<T> { T value; } เมื่อประกาศ Box<String> b ข้อใดถูก", o:["b.value มีชนิด String และดึงค่ามาใส่ตัวแปร String ได้โดยไม่ต้อง cast","b.value มีชนิด Object ต้อง cast ทุกครั้ง","Box<String> ใส่ค่า Integer ลง value ได้","ต้องประกาศคลาสใหม่ชื่อ StringBox"], a:0, e:"T ถูกแทนด้วย String ตอนใช้งาน"}
+  ]
+});
+
+TOPICS.push({
+  id: "l7", lec: "Lec 7", title: "Collections", w: "lo",
+  ask: [
+    ["Interface List", "<mark>เรียงลำดับ</mark> ตามที่ใส่ เก็บค่าซ้ำได้ เข้าถึงด้วย index"],
+    ["Interface Set", "<mark>ไม่เก็บค่าซ้ำ</mark>"],
+    ["Interface Map", "เก็บ<mark>เป็นคู่</mark> key → value · key ห้ามซ้ำ"],
+    ["คลาส ArrayList", "List ที่ใช้ array ภายใน ขยายขนาดเองอัตโนมัติ (โน้ตเพื่อนมีตัวเลขแดง 3, 2, 2 ข้าง ๆ อาจเป็นจำนวนข้อ)"]
+  ],
+  summary: `
+<table>
+<tr><th></th><th>List</th><th>Set</th><th>Map</th></tr>
+<tr><td>ลำดับ</td><td>ตามที่ใส่</td><td>HashSet ไม่รับประกัน · TreeSet เรียง</td><td>HashMap ไม่รับประกัน · TreeMap เรียงตาม key</td></tr>
+<tr><td>ค่าซ้ำ</td><td>ได้</td><td><mark>ไม่ได้</mark></td><td>key ไม่ได้ (put ซ้ำ = ทับ)</td></tr>
+<tr><td>คลาสที่ใช้บ่อย</td><td>ArrayList, LinkedList</td><td>HashSet, TreeSet</td><td>HashMap, TreeMap</td></tr>
+<tr><td>เหมาะกับ</td><td>เพลย์ลิสต์, คิว</td><td>รหัสไม่ซ้ำ</td><td>นับคำ, สมุดโทรศัพท์</td></tr>
+</table>
+<h4>ArrayList</h4>
+<p><code>add(x)</code> ต่อท้าย · <code>add(i, x)</code> แทรก · <code>get(i)</code> · <code>set(i, x)</code> แทนที่ · <code>size()</code> · <code>contains(x)</code></p>
+<p><code>remove(int index)</code> vs <code>remove(Object o)</code>: ใน <code>List&lt;Integer&gt;</code> <code>list.remove(12)</code> คือลบ<mark>ตำแหน่ง</mark> 12 ถ้าจะลบค่า 12 ใช้ <code>list.remove(Integer.valueOf(12))</code></p>
+<h4>Set / Map</h4>
+<p><code>set.add(x)</code> คืน <code>true</code> ถ้าเพิ่มได้ · <code>false</code> ถ้ามีอยู่แล้ว</p>
+<p><code>map.put(k, v)</code> · <code>get(k)</code> (ไม่มีคืน null) · <code>getOrDefault(k, 0)</code> · <code>containsKey(k)</code> · นับจำนวน: <code>counts.put(k, counts.getOrDefault(k, 0) + 1)</code></p>
+<p>HashSet/HashMap ใช้ <code>equals()</code> + <code>hashCode()</code> ตัดสินว่าซ้ำไหม ถ้า override equals ต้อง override hashCode ด้วย</p>
+<p>เรียง: <code>Collections.sort(list)</code></p>`,
+  quiz: [
+    {s:"t", q:"ระบบต้องเก็บรหัสนักศึกษาที่ลงทะเบียน โดยห้ามซ้ำและไม่สนใจลำดับ ควรใช้ collection ใด", o:["Set (เช่น HashSet)","List (เช่น ArrayList)","Map","Array ขนาดคงที่"], a:0, e:"Set ไม่เก็บค่าซ้ำ"},
+    {s:"t", q:"ต้องนับว่าแต่ละคำในข้อความปรากฏกี่ครั้ง โครงสร้างใดเหมาะที่สุด", o:["Map<String, Integer>","Set<String>","List<Integer>","String[]"], a:0, e:"ใช้คำเป็น key และจำนวนครั้งเป็น value"},
+    {s:"t", q:"เพลย์ลิสต์ต้องเล่นตามลำดับที่ผู้ใช้เพิ่ม และเพิ่มเพลงเดิมซ้ำได้ ควรใช้อะไร", o:["List","Set","Map","enum"], a:0, e:"List รักษาลำดับและเก็บค่าซ้ำได้"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`Set<String> s = new HashSet<>();
+System.out.println(s.add("A") + " " + s.add("A") + " " + s.size());`, o:["true false 1","true true 2","false false 0","true true 1"], a:0, e:"ครั้งแรกเพิ่มได้ (true) ครั้งที่สองซ้ำ (false) ขนาดเป็น 1"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`Map<String, Integer> m = new HashMap<>();
+m.put("x", 1);
+m.put("x", 2);
+System.out.println(m.size() + " " + m.get("x"));`, o:["1 2","2 2","1 1","2 1"], a:0, e:"key ซ้ำ put ครั้งหลังทับค่าเดิม ขนาดยังเป็น 1"},
+    {s:"ex", q:"ids เป็น ArrayList<Integer> ที่มี [6, 12, 18] ผู้พัฒนาเรียก ids.remove(12) เพื่อลบค่า 12 แต่เกิด IndexOutOfBoundsException ควรแก้อย่างไร", o:["ids.remove(Integer.valueOf(12))","ids.remove(\"12\")","ids.delete(12)","ids.remove(12, 1)"], a:0, e:"remove(int) ตีความเป็น index ต้องส่ง object Integer เพื่อเรียก remove(Object)"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไร", c:`List<String> l = new ArrayList<>(List.of("a", "b", "c"));
+l.set(1, "x");
+l.add(0, "z");
+System.out.println(l);`, o:["[z, a, x, c]","[z, x, b, c]","[a, x, c, z]","[z, a, b, x, c]"], a:0, e:"set(1) แทนที่ b ด้วย x → [a, x, c] แล้ว add(0) แทรกหน้าสุด → [z, a, x, c]"},
+    {s:"ex", q:"counts เป็น Map<String,Integer> ว่าง ต้องการเพิ่มจำนวนของ code ทีละ 1 คำสั่งใดถูกต้องเมื่อ code ยังไม่เคยมี", o:["counts.put(code, counts.getOrDefault(code, 0) + 1);","counts.put(code, counts.get(code) + 1);","counts.add(code, 1);","counts.get(code)++;"], a:0, e:"get คืน null ถ้ายังไม่มี key การ +1 กับ null จะเกิด NullPointerException"},
+    {s:"ex", q:"คลาส Key override equals() ให้เทียบ id แต่ไม่ได้ override hashCode() เมื่อใส่ new Key(1) สองตัวลง HashSet ผลมักเป็นอย่างไร", o:["มี 2 ตัว เพราะ hashCode ต่างกันจึงไม่ถูกเทียบด้วย equals","มี 1 ตัว เพราะ equals บอกว่าเท่ากัน","คอมไพล์ไม่ผ่าน","เกิด exception ตอน add"], a:0, e:"HashSet ดู hashCode ก่อน ถ้าต่างกันจะไม่เรียก equals เลย ต้อง override ทั้งคู่ให้สอดคล้องกัน"}
+  ]
+});
+
+TOPICS.push({
+  id: "l8s", lec: "Lec 8", title: "SOLID", w: "hi",
+  ask: [
+    ["SOLID — ความหมายของแต่ละตัวอักษร", "S = Single Responsibility · O = Open/Closed · L = Liskov Substitution · I = Interface Segregation · D = Dependency Inversion"]
+  ],
+  summary: `
+<table>
+<tr><th>ตัว</th><th>หลักการ</th><th>จำง่าย ๆ</th><th>สัญญาณว่าละเมิด</th></tr>
+<tr><td><b>S</b></td><td>Single Responsibility</td><td>คลาสหนึ่ง <mark>มีเหตุผลให้เปลี่ยนเพียงเรื่องเดียว</mark></td><td>คลาสเดียวทำทั้งกฎธุรกิจ บันทึกไฟล์ และแสดงผล</td></tr>
+<tr><td><b>O</b></td><td>Open/Closed</td><td><mark>เปิดให้ขยาย ปิดไม่ให้แก้</mark> — เพิ่มของใหม่โดยไม่แก้โค้ดเดิม</td><td>เพิ่มชนิดใหม่ทีไรต้องแก้ if/switch เดิม</td></tr>
+<tr><td><b>L</b></td><td>Liskov Substitution</td><td>เอาคลาสลูกไป<mark>แทนคลาสแม่ได้โดยไม่ผิดสัญญา</mark></td><td>คลาสลูก throw ในกรณีที่แม่บอกว่ารองรับ</td></tr>
+<tr><td><b>I</b></td><td>Interface Segregation</td><td>อย่าบังคับให้ใช้ interface ใหญ่ที่มีเมธอดที่ไม่ได้ใช้</td><td>ต้องพึ่ง MegaDevice ทั้งที่ใช้แค่ start()</td></tr>
+<tr><td><b>D</b></td><td>Dependency Inversion</td><td>พึ่งพา <mark>abstraction (interface)</mark> ไม่ใช่คลาสจริง</td><td>Service รับ SqlMemberStore ตรง ๆ</td></tr>
+</table>
+<p class="note">Dependency <b>Inversion</b> (หลักการ) ≠ Dependency <b>Injection</b> (เทคนิคส่ง dependency เข้ามา เช่นผ่าน constructor) — inject คลาสจริงเข้ามาก็ยังไม่ครบ DIP ถ้าชนิดพารามิเตอร์ยังเป็นคลาสจริง</p>`,
+  quiz: [
+    {s:"t", q:"คลาส PhotoCatalog ดูแลทั้งกฎการตั้งชื่อภาพ (ทีมภัณฑารักษ์เป็นคนกำหนด) และการเข้ารหัสไฟล์ (ทีมวิศวกรเป็นคนกำหนด) การออกแบบนี้ขัดหลักใดชัดที่สุด", o:["Single Responsibility","Liskov Substitution","Interface Segregation","Open/Closed"], a:0, e:"คลาสเดียวมีเหตุผลให้เปลี่ยนจากสองฝ่าย ควรแยกเป็นสองคลาส"},
+    {s:"t", q:"ระบบคิดแต้ม Reward ใช้ switch ตามชนิด ทุกครั้งที่เพิ่มชนิดใหม่ต้องแก้ switch เดิม ขัดหลักใด และควรแก้อย่างไร", o:["Open/Closed — ให้แต่ละชนิด override points() เองผ่าน polymorphism","Single Responsibility — ย้าย switch ไปไว้ใน main","Dependency Inversion — เปลี่ยน switch เป็น if-else","Interface Segregation — แยก switch เป็นหลายเมธอด"], a:0, e:"เพิ่มคลาสใหม่โดยไม่ต้องแตะโค้ดเดิม = open for extension, closed for modification"},
+    {s:"t", q:"สัญญาของ Sorter ระบุว่า sort รับ List ว่างได้และต้องคืน List ว่าง แต่ NonEmptySorter ซึ่งเป็น subtype กลับ throw exception เมื่อเจอ List ว่าง ขัดหลักใด", o:["Liskov Substitution","Single Responsibility","Open/Closed","Interface Segregation"], a:0, e:"เอา subtype ไปแทน supertype แล้วผิดสัญญาเดิม"},
+    {s:"t", q:"RemoteStartButton ใช้เพียง start() แต่ต้องพึ่ง MegaDevice ที่มีทั้ง start(), calibrate(), firmwareUpdate() ควรปรับตามหลักใด", o:["Interface Segregation — แยก interface เล็กอย่าง Startable ให้ปุ่มพึ่งเฉพาะที่ใช้","Liskov Substitution — ให้ MegaDevice extends RemoteStartButton","Single Responsibility — รวมทุกเมธอดไว้ในปุ่ม","Open/Closed — ห้ามแก้ MegaDevice ตลอดไป"], a:0, e:"ไม่ควรบังคับให้ client พึ่งเมธอดที่ไม่ได้ใช้"},
+    {s:"t", q:"RegistrationService รับ SqlMemberStore ผ่าน constructor ผู้พัฒนาบอกว่าใช้ DIP ครบแล้ว ข้อใดถูก", o:["ยังไม่ครบ เพราะยังพึ่งคลาสจริง ควรพึ่ง interface เช่น MemberStore","ครบแล้ว เพราะรับผ่าน constructor","ครบแล้ว เพราะ SqlMemberStore เป็น public","ไม่เกี่ยวกับ DIP เพราะ DIP พูดถึงการสืบทอดเท่านั้น"], a:0, e:"การส่งผ่าน constructor คือ dependency injection แต่ DIP ต้องให้ทั้งสองฝั่งพึ่ง abstraction"},
+    {s:"t", q:"ตัวอักษร D ใน SOLID ย่อมาจากอะไร", o:["Dependency Inversion Principle","Dependency Injection Pattern","Data Integrity Principle","Dynamic Dispatch Principle"], a:0, e:"Dependency Inversion: โมดูลระดับสูงและต่ำพึ่ง abstraction ร่วมกัน"},
+    {s:"t", q:"ข้อความ \"ซอฟต์แวร์ควรเปิดให้ขยายความสามารถ แต่ปิดไม่ให้แก้ไขโค้ดเดิม\" คือหลักใด", o:["O — Open/Closed","S — Single Responsibility","L — Liskov Substitution","I — Interface Segregation"], a:0, e:"Open for extension, closed for modification"},
+    {s:"ex", q:"Square extends Rectangle แล้ว override setWidth ให้เปลี่ยน height ด้วย โค้ดที่ตั้ง width=5, height=4 แล้วคาดว่าพื้นที่ 20 ได้ 16 แทน เป็นตัวอย่างของการขัดหลักใด", o:["Liskov Substitution","Interface Segregation","Dependency Inversion","Single Responsibility"], a:0, e:"Square แทน Rectangle แล้วพฤติกรรมผิดจากที่ผู้ใช้คาด"}
+  ]
+});
+
+TOPICS.push({
+  id: "l8e", lec: "Lec 8", title: "Exception", w: "hi",
+  ask: [
+    ["Syntax Error (หน้า 5)", "เขียนผิดไวยากรณ์ คอมไพล์ไม่ผ่าน IDE ขีดแดงแจ้งจุดที่ผิด โปรแกรมรันไม่ได้"],
+    ["Logical Error (หน้า 6)", "syntax ถูก รันได้ ไม่มี error แต่<mark>ผลลัพธ์ผิด</mark> เช่น int 2,000 ล้าน × 2 → overflow ติดลบ"],
+    ["ประเภทของความผิดปกติ (หน้า 39)", "Unchecked = Java ไม่บังคับ try-catch (อยู่ใต้ RuntimeException) · Checked = บังคับ (เช่น IO)"],
+    ["กฎการใช้ try-catch (คลิป 0:41)", "อาจารย์สั่งให้ไปดูเอง — สรุปกฎไว้ด้านล่าง"]
+  ],
+  summary: `
+<h4>ความผิดพลาด 3 แบบ</h4>
+<table>
+<tr><th></th><th>เจอตอน</th><th>ตัวอย่าง</th></tr>
+<tr><td>Syntax error</td><td>คอมไพล์</td><td>ลืม ; สะกด keyword ผิด</td></tr>
+<tr><td>Logical error</td><td>ไม่มีใครแจ้ง ผลแค่ผิด</td><td>int overflow, หาร int ได้ 2 แทน 2.5, ใช้ &gt;= แทน &gt;</td></tr>
+<tr><td>Exception (ความผิดปกติ)</td><td>ตอนรัน</td><td>หารด้วย 0, เปิดไฟล์ไม่เจอ, index เกิน</td></tr>
+</table>
+<h4>Checked vs Unchecked</h4>
+<table>
+<tr><th></th><th>Unchecked</th><th>Checked</th></tr>
+<tr><td>บังคับ try-catch</td><td>ไม่บังคับ</td><td><mark>บังคับ</mark> catch หรือ throws</td></tr>
+<tr><td>ในแผนภูมิ</td><td>ใต้ <code>RuntimeException</code></td><td>Exception อื่นนอกนั้น</td></tr>
+<tr><td>สาเหตุ</td><td>ป้องกันได้ด้วยโค้ด</td><td>ปัจจัยภายนอก โค้ดถูกก็พังได้</td></tr>
+<tr><td>ตัวอย่าง</td><td>ArithmeticException, NullPointerException, ArrayIndexOutOfBounds, NumberFormatException</td><td>IOException, FileNotFoundException</td></tr>
+</table>
+<h4>กฎ try-catch-finally</h4>
+<p>1) เกิด exception ใน try → <mark>คำสั่งที่เหลือใน try ถูกข้าม</mark> กระโดดไป catch ที่ตรงชนิด<br>
+2) หลาย catch → เรียงจาก<mark>ชนิดเฉพาะไปกว้าง</mark> (ลูกก่อนแม่) ถ้าใส่ Exception ก่อนจะคอมไพล์ไม่ผ่าน (unreachable)<br>
+3) <code>finally</code> ทำงาน<mark>เสมอ</mark> ไม่ว่าจะเกิด exception หรือไม่ ใช้ปิดไฟล์/คืนทรัพยากร ลดโค้ดซ้ำ<br>
+4) <code>throw</code> = โยน exception ออกไป · <code>throws</code> = ประกาศที่หัวเมธอดว่าอาจโยน checked exception</p>
+<p>ข้อมูล exception: <code>e.getMessage()</code> · <code>e.printStackTrace()</code></p>`,
+  quiz: [
+    {s:"t", q:"ลืมใส่เครื่องหมาย ; ท้ายคำสั่ง จะเกิดความผิดพลาดแบบใด", o:["Syntax error — คอมไพล์ไม่ผ่าน","Logical error — รันได้แต่ผลผิด","Unchecked exception ตอนรัน","Checked exception ตอนรัน"], a:0, e:"ผิดไวยากรณ์ คอมไพเลอร์ตรวจเจอก่อนรัน"},
+    {s:"t", q:"โค้ดนี้รันได้ไม่มี error แต่พิมพ์ค่าติดลบ เป็นความผิดพลาดแบบใด", c:`int x = 2_000_000_000;
+System.out.println(x * 2);`, o:["Logical error (overflow)","Syntax error","Checked exception","ArithmeticException"], a:0, e:"ตัวอย่างที่อาจารย์ยกในคลิป: int ล้นแล้ววนเป็นค่าติดลบ Java ไม่แจ้งเตือน"},
+    {s:"t", q:"ต้องการหาค่าเฉลี่ยได้ 2.5 แต่ได้ 2.0 สาเหตุและประเภทความผิดพลาดคืออะไร", c:`int sum = 5, count = 2;
+double avg = sum / count;`, o:["Logical error — หาร int ด้วย int ได้ 2 ก่อนแปลงเป็น double","Syntax error — ใส่ int ลง double ไม่ได้","Unchecked exception — หารไม่ลงตัว","Checked exception — ต้องใส่ try-catch"], a:0, e:"แก้ด้วย (double) sum / count"},
+    {s:"t", q:"Exception ใดที่ Java บังคับให้ต้อง try-catch หรือประกาศ throws", o:["IOException","NullPointerException","ArithmeticException","ArrayIndexOutOfBoundsException"], a:0, e:"IOException เป็น checked exception เกิดจากปัจจัยภายนอกอย่างไฟล์หรือเครือข่าย"},
+    {s:"t", q:"ดูอย่างไรว่า exception ตัวใดเป็น unchecked", o:["เป็นคลาสลูกของ RuntimeException ในแผนภูมิการสืบทอด","ชื่อลงท้ายด้วยคำว่า Error","เกิดขึ้นตอนคอมไพล์","ทุก exception ใน java.io"], a:0, e:"อาจารย์ย้ำในคลิป: อะไรอยู่หมวด RuntimeException ไม่บังคับ นอกนั้นบังคับ"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`try {
+    System.out.print("1");
+    int x = 5 / 0;
+    System.out.print("2");
+} catch (ArithmeticException e) {
+    System.out.print("3");
+} finally {
+    System.out.print("4");
+}
+System.out.print("5");`, o:["1345","12345","135","1234"], a:0, e:"หาร 0 แล้วข้าม \"2\" ไป catch พิมพ์ 3 · finally ทำเสมอ พิมพ์ 4 · จากนั้นทำต่อพิมพ์ 5"},
+    {s:"t", q:"เขียน catch (Exception e) ไว้ก่อน catch (ArithmeticException e) ผลคืออะไร", o:["คอมไพล์ไม่ผ่าน เพราะ catch ตัวหลังไม่มีทางถูกใช้ (unreachable)","คอมไพล์ผ่าน Java เลือก catch ที่เฉพาะเจาะจงที่สุดเอง","คอมไพล์ผ่าน และทั้งสอง catch ทำงาน","รันแล้วโปรแกรมพังทันที"], a:0, e:"ต้องเรียงจากชนิดลูกไปชนิดแม่"},
+    {s:"t", q:"เปิดไฟล์ด้วยโค้ดที่เขียนถูกทุกบรรทัด แต่ไฟล์ไม่มีอยู่จริง ทำไม Java จึงบังคับให้จัดการ exception กรณีนี้", o:["เป็นปัจจัยภายนอกที่โค้ดป้องกันเองไม่ได้ จึงเป็น checked exception","เพราะเป็น syntax error","เพราะ IO ทำงานใน thread แยกเสมอ","เพราะ FileNotFoundException เป็นลูกของ RuntimeException"], a:0, e:"เหตุผลตามที่อาจารย์อธิบาย: null pointer แก้ได้ด้วยโค้ด แต่ไฟล์หายเป็นเรื่องภายนอก"},
+    {s:"ex", q:"ข้อใดใช้ throw และ throws ถูกต้อง", o:["void read() throws IOException { ... throw new IOException(\"fail\"); }","void read() throw IOException { ... throws new IOException(); }","void read() throws new IOException { ... }","void read() { throws IOException; }"], a:0, e:"throws อยู่หัวเมธอด (ประกาศ) · throw อยู่ในตัวเมธอด (โยนจริง)"},
+    {s:"ex", q:"เมธอด last(String s) คืน s.charAt(s.length()) เมื่อเรียก last(\"route\") เกิดอะไรขึ้น", o:["StringIndexOutOfBoundsException เพราะตัวสุดท้ายอยู่ตำแหน่ง length() − 1","คืน 'e'","คืนค่าว่าง","คอมไพล์ไม่ผ่าน"], a:0, e:"index เริ่มที่ 0 ตัวสุดท้ายคือ length() − 1 = 4"},
+    {s:"ex", q:"Integer.parseInt(\"12a\") จะเกิดอะไร", o:["NumberFormatException (unchecked)","IOException (checked)","คืนค่า 12","คืนค่า 0"], a:0, e:"NumberFormatException เป็นลูกของ RuntimeException"}
+  ]
+});
+
+TOPICS.push({
+  id: "l9", lec: "Lec 9", title: "GUI (Swing)", w: "hi",
+  ask: [
+    ["Sample GUI — คลาสที่ใช้ทำ GUI", "ขึ้นต้นด้วย J ชื่อบอกหน้าที่: JFrame, JLabel, JButton, JTextField, JTextArea ฯลฯ"],
+    ["JMenu ทำอะไร", "เมนูหนึ่งหัวข้อบนแถบเมนู (เช่น File) ใส่ JMenuItem ไว้ข้างใน · ลำดับ JMenuBar → JMenu → JMenuItem"],
+    ["FlowLayout เรียงยังไง", "ซ้าย→ขวาตามลำดับที่ add เต็มบรรทัดขึ้นบรรทัดใหม่ ย่อ/ขยายหน้าต่างแล้วปุ่มไหลตาม (เหมือนน้ำ)"],
+    ["BorderLayout (คลิป)", "แบ่ง 5 พื้นที่ NORTH, SOUTH, EAST, WEST, CENTER"]
+  ],
+  summary: `
+<p>GUI ใน Java ใช้ <code>javax.swing</code> + <code>java.awt</code> · คลาสหลักขึ้นต้นด้วย <b>J</b></p>
+<h4>Component</h4>
+<table>
+<tr><th>คลาส</th><th>ใช้ทำ</th></tr>
+<tr><td>JFrame</td><td>หน้าต่างหลัก ต้อง <code>setVisible(true)</code> · ใส่ของลง content pane</td></tr>
+<tr><td>JPanel</td><td>กล่องจัดกลุ่ม component (nesting panels)</td></tr>
+<tr><td>JLabel / JButton</td><td>ข้อความหรือรูป / ปุ่มกด</td></tr>
+<tr><td>JTextField / JTextArea</td><td>ช่องพิมพ์บรรทัดเดียว / หลายบรรทัด (ใส่ JScrollPane เพื่อมี scroll bar)</td></tr>
+<tr><td>JCheckBox / JRadioButton</td><td>เลือกได้หลายอัน / เลือกได้อันเดียวเมื่ออยู่ใน <mark>ButtonGroup เดียวกัน</mark></td></tr>
+<tr><td>JOptionPane</td><td>กล่องโต้ตอบ: message, confirm (Yes/No/Cancel), input</td></tr>
+</table>
+<h4>Menu</h4>
+<p><b>JMenuBar</b> (1 frame มีได้ 1 แถบ) → <b>JMenu</b> (หัวข้อ เช่น File, Edit) → <b>JMenuItem</b> (คำสั่งย่อย เช่น Open, Save) → <code>frame.setJMenuBar(bar)</code></p>
+<h4>Layout Manager</h4>
+<table>
+<tr><th>Layout</th><th>วิธีจัด</th></tr>
+<tr><td>FlowLayout</td><td>ซ้าย→ขวา ตามลำดับ add ล้นบรรทัดก็ขึ้นบรรทัดใหม่ · ขนาดปุ่มพอดีข้อความ</td></tr>
+<tr><td>BorderLayout</td><td>5 พื้นที่ N/S/E/W/Center · <mark>Center ขยายตามหน้าต่าง</mark> · N/S ยืดตามแนวนอน</td></tr>
+<tr><td>GridLayout(r, c)</td><td>ตาราง r × c ช่องเท่ากัน วางซ้าย→ขวา บน→ล่าง</td></tr>
+<tr><td>null layout</td><td>กำหนดตำแหน่งเองด้วย <code>setBounds</code></td></tr>
+</table>
+<h4>Event handling</h4>
+<p>Event source (ปุ่ม) → สร้าง event → <b>listener</b> ที่ลงทะเบียนไว้รับไปทำงาน · คลาส <code>implements ActionListener</code> เขียน <code>actionPerformed(ActionEvent e)</code> แล้ว <code>button.addActionListener(handler)</code> · ทำได้ทั้งคลาสแยก, ให้ frame เป็น listener เอง หรือ anonymous inner class / lambda</p>
+<p>ลงทะเบียน listener ซ้ำ = ทำงานซ้ำหลายครั้งต่อการกดหนึ่งครั้ง</p>`,
+  quiz: [
+    {s:"t", q:"ลำดับการสร้างเมนูข้อใดถูกต้อง", o:["สร้าง JMenuBar → สร้าง JMenu แล้วเพิ่ม JMenuItem ลงไป → เพิ่ม JMenu ลง JMenuBar → frame.setJMenuBar()","สร้าง JMenuItem → ใส่ลง JFrame โดยตรง","สร้าง JMenu หลายแถบใน frame เดียว แล้วใส่ JMenuBar ลงใน JMenu","สร้าง JMenuBar แล้วใส่ JMenuItem ลงไปโดยไม่ต้องมี JMenu"], a:0, e:"แถบ (JMenuBar) → หัวข้อ (JMenu) → รายการ (JMenuItem)"},
+    {s:"t", q:"คำว่า \"File\" บนแถบเมนูที่กดแล้วมี Open, Save, Exit ให้เลือก ควรสร้างด้วยคลาสใด", o:["JMenu","JMenuItem","JMenuBar","JButton"], a:0, e:"File คือ JMenu ส่วน Open/Save/Exit คือ JMenuItem"},
+    {s:"t", q:"ใช้ FlowLayout เพิ่มปุ่ม B1–B5 ตามลำดับ แล้วย่อหน้าต่างให้แคบจนบรรทัดเดียวใส่ได้ 3 ปุ่ม ผลคืออะไร", o:["B1 B2 B3 อยู่บรรทัดแรก B4 B5 ขึ้นบรรทัดใหม่","ปุ่มทั้ง 5 หดเล็กลงให้อยู่บรรทัดเดียว","B4 B5 หายไป","ปุ่มเรียงจากบนลงล่างเป็นคอลัมน์เดียว"], a:0, e:"FlowLayout เรียงซ้ายไปขวา ล้นแล้วขึ้นบรรทัดใหม่ เหมือนน้ำไหลตามภาชนะ"},
+    {s:"t", q:"ต้องการแถบเครื่องมือด้านบน แถบสถานะด้านล่าง และพื้นที่ทำงานตรงกลางที่ขยายตามหน้าต่าง Layout ใดเหมาะที่สุด", o:["BorderLayout: NORTH, SOUTH, CENTER","FlowLayout","GridLayout(3, 1)","null layout แล้ว setBounds คงที่"], a:0, e:"CENTER ของ BorderLayout ได้พื้นที่ที่เหลือทั้งหมดและขยายตามหน้าต่าง"},
+    {s:"t", q:"BorderLayout แบ่งพื้นที่ออกเป็นกี่ส่วน อะไรบ้าง", o:["5 ส่วน: North, South, East, West, Center","4 ส่วน: North, South, East, West","3 ส่วน: Top, Middle, Bottom","9 ส่วนเท่ากันแบบตาราง"], a:0, e:"ตามที่อาจารย์บอก: เหนือ ใต้ ออก ตก และตรงกลาง"},
+    {s:"ex", q:"new GridLayout(2, 3) แล้ว add ปุ่ม 6 ปุ่ม ผลคืออะไร", o:["2 แถว 3 คอลัมน์ ทุกช่องขนาดเท่ากัน เรียงซ้าย→ขวา บน→ล่าง","3 แถว 2 คอลัมน์","ปุ่มเรียงแถวเดียว 6 ปุ่ม","ปุ่มแต่ละปุ่มขนาดตามข้อความ"], a:0, e:"GridLayout(rows, cols) แบ่งช่องเท่ากัน"},
+    {s:"ex", q:"JRadioButton Small และ Large ถูกเพิ่มลง ButtonGroup คนละตัว ผู้ใช้จึงเลือกได้ทั้งคู่ ควรแก้อย่างไร", o:["เพิ่มทั้งสองปุ่มลง ButtonGroup ตัวเดียวกัน","ตั้งข้อความปุ่มให้เหมือนกัน","เปลี่ยน layout เป็น GridLayout","ใส่ปุ่มลง JFrame โดยไม่ใช้ ButtonGroup"], a:0, e:"ButtonGroup ทำให้เลือกได้ทีละปุ่มเฉพาะปุ่มที่อยู่กลุ่มเดียวกัน"},
+    {s:"ex", q:"ต้องการให้กดปุ่มแล้วทำงาน ต้องทำอะไร", o:["สร้างคลาสที่ implements ActionListener เขียน actionPerformed แล้วเรียก button.addActionListener(...)","เขียนเมธอด click() ในคลาส JButton","เรียก button.setVisible(true)","override paint() ของปุ่ม"], a:0, e:"event source ต้องลงทะเบียน listener ไว้"},
+    {s:"ex", q:"ผู้ใช้พิมพ์ \" 42 \" (มีช่องว่าง) ใน JTextField field ต้องการได้ int 42 คำสั่งใดถูก", o:["Integer.parseInt(field.getText().trim())","Integer.parseInt(field.toString())","Integer.parseInt(String.valueOf(field))","(int) field.getText()"], a:0, e:"getText() อ่านข้อความ trim() ตัดช่องว่างหัวท้าย parseInt แปลงเป็น int"},
+    {s:"ex", q:"ทุกครั้งที่เปิดหน้าจอ โปรแกรมเรียก addActionListener เพิ่ม listener บันทึกข้อมูลตัวใหม่กับปุ่มเดิม หลังเปิดสองครั้ง กดปุ่มครั้งเดียวบันทึกสองรายการ ควรแก้อย่างไร", o:["ลงทะเบียน listener เพียงครั้งเดียว หรือ remove ตัวเก่าก่อนเพิ่มใหม่","เปลี่ยนเป็น MouseListener","เรียก setEnabled(false) หลังกด","ใช้ FlowLayout แทน"], a:0, e:"listener ทุกตัวที่ลงทะเบียนจะถูกเรียกเมื่อเกิด event"},
+    {s:"ex", q:"ต้องการให้ JTextArea มี scroll bar เมื่อข้อความยาว ควรทำอย่างไร", o:["ใส่ JTextArea ไว้ใน JScrollPane แล้ว add JScrollPane ลง frame","เรียก textArea.setScroll(true)","ใช้ JTextField แทน","ตั้ง layout เป็น BorderLayout"], a:0, e:"ตามสไลด์: new JScrollPane(textArea)"}
+  ]
+});
+TOPICS.push({
+  id: "g1", lec: "Lec 10", title: "GoF · Creational", w: "hi",
+  ask: [
+    ["GoF Design Patterns คืออะไร", "pattern การเขียนซอฟต์แวร์ที่ใช้บ่อย จากหนังสือ Design Patterns ผู้แต่ง 4 คน (Gang of Four) · ไม่ต้องคิดจาก 0, โค้ดอ่านง่าย · ไม่ถามชื่อผู้แต่ง"],
+    ["มีกี่ pattern กี่กลุ่ม", "<mark>23 pattern 3 กลุ่ม</mark>: Creational (5) · Structural (7) · Behavioral (11)"],
+    ["Creational มี 5 pattern ย่อย", "Factory Method, Abstract Factory, Builder, Prototype, Singleton"],
+    ["Abstract Factory ลักษณะสำคัญ (อาจารย์บอกว่าออก)", "สร้าง object <mark>เป็นชุด</mark> และ object ในชุดเดียวกันเข้ากัน (เก้าอี้+โซฟา+โต๊ะ สไตล์ Art Deco / Victorian)"]
+  ],
+  summary: `
+<table>
+<tr><th>กลุ่ม</th><th>สนใจเรื่อง</th><th>จำนวน</th></tr>
+<tr><td>Creational</td><td>วิธี<mark>สร้าง</mark> object</td><td>5</td></tr>
+<tr><td>Structural</td><td><mark>โครงสร้าง</mark>/การประกอบคลาสและ object</td><td>7</td></tr>
+<tr><td>Behavioral</td><td><mark>พฤติกรรม</mark>/การสื่อสารระหว่าง object</td><td>11</td></tr>
+</table>
+<p>แนะนำอ่านเพิ่ม: <b>Refactoring Guru</b> → Design Patterns · ข้อสอบถาม <mark>concept</mark> ไม่ให้เขียนโปรแกรม</p>
+<h4>Creational 5 ตัว</h4>
+<table>
+<tr><th>Pattern</th><th>แนวคิด</th><th>ตัวอย่างของอาจารย์</th></tr>
+<tr><td>Factory Method</td><td>สร้าง object <b>ทีละตัว</b> ผ่านเมธอดที่คลาสลูกเลือกได้ว่าจะสร้างชนิดไหน</td><td>Creator.createParser() → JsonParser / XmlParser</td></tr>
+<tr><td>Abstract Factory</td><td>สร้าง object <b>เป็นชุด (family)</b> ที่เข้ากัน</td><td>ชุดเฟอร์นิเจอร์ Art Deco / Victorian</td></tr>
+<tr><td>Builder</td><td>สร้าง object ซับซ้อน<b>ทีละขั้น</b></td><td>หุ่นยนต์: ลูกกลม → เหลาเป็นสี่เหลี่ยม → ติดแขนขา</td></tr>
+<tr><td>Prototype</td><td><b>copy (clone)</b> จากต้นแบบ</td><td>หุ่นยนต์ต้นแบบ แล้วโคลน</td></tr>
+<tr><td>Singleton</td><td>มี object <b>แค่ตัวเดียว</b> แล้ว reuse</td><td>DB connection ใช้ร่วมกันทุก screen</td></tr>
+</table>
+<h4>Deep copy vs Shallow copy (Prototype)</h4>
+<table>
+<tr><th></th><th>Deep copy</th><th>Shallow copy</th></tr>
+<tr><td>หลักการ</td><td>สร้าง object ใหม่จริง รวมถึงข้อมูลข้างใน</td><td>คัดลอกแค่ reference ข้างในยังชี้ที่เดียวกัน</td></tr>
+<tr><td>แก้ตัวหนึ่ง</td><td>อีกตัวไม่เปลี่ยน</td><td><mark>อีกตัวเปลี่ยนตาม</mark></td></tr>
+</table>
+<p><code>super.clone()</code> ตั้งต้นเป็น shallow copy — array/list ข้างในยังใช้ร่วมกัน</p>
+<h4>Singleton ที่ถูกต้อง</h4>
+<p><code>private</code> constructor + <code>private static</code> field เก็บ instance + <code>public static getInstance()</code> คืนตัวเดิมทุกครั้ง</p>`,
+  quiz: [
+    {s:"t", q:"GoF Design Patterns มีทั้งหมดกี่ pattern แบ่งเป็นกี่กลุ่ม", o:["23 pattern 3 กลุ่ม","23 pattern 4 กลุ่ม","20 pattern 3 กลุ่ม","11 pattern 3 กลุ่ม"], a:0, e:"Creational 5 + Structural 7 + Behavioral 11 = 23"},
+    {s:"t", q:"กลุ่ม Creational Pattern สนใจเรื่องใด", o:["วิธีสร้าง object","โครงสร้างการประกอบคลาส","การสื่อสารระหว่าง object","การทดสอบซอฟต์แวร์"], a:0, e:"Create = สร้าง"},
+    {s:"t", q:"ลักษณะสำคัญของ Abstract Factory คือข้อใด", o:["สร้าง object เป็นชุด และ object ในชุดเดียวกันทำงานเข้ากันได้","สร้าง object ได้เพียงตัวเดียวทั้งโปรแกรม","คัดลอก object จากต้นแบบ","สร้าง object ทีละขั้นตอน"], a:0, e:"อาจารย์บอกตรง ๆ ว่าข้อสอบถามแค่ concept นี้"},
+    {s:"t", q:"ProtocolFactory มีหน้าที่สร้าง Encoder และ Decoder ที่ใช้ร่วมกันได้ แต่ทีมเอา Encoder จาก BinaryFactory มาใช้คู่กับ Decoder จาก TextFactory จนข้อมูลเสีย Pattern ใดออกแบบมาเพื่อป้องกันปัญหานี้", o:["Abstract Factory","Singleton","Prototype","Builder"], a:0, e:"Abstract Factory ให้ทั้งชุดมาจาก factory เดียวกัน จึงเข้ากันเสมอ"},
+    {s:"t", q:"คลาส Creator มีเมธอด createParser() ที่คลาสลูกแต่ละตัว override เพื่อเลือกว่าจะสร้าง JsonParser หรือ XmlParser โดยโค้ดประมวลผลเดิมไม่ต้องแก้ นี่คือ pattern ใด", o:["Factory Method","Abstract Factory","Builder","Prototype"], a:0, e:"Factory Method: ให้คลาสลูกตัดสินใจว่าจะสร้าง product ชนิดไหน ทีละตัว"},
+    {s:"t", q:"ต้องสร้างคำสั่งซื้อพิซซ่าที่มีตัวเลือกเสริมจำนวนมาก (แป้ง ซอส ชีส ท็อปปิ้ง ขนาด) ทีละขั้นแล้วค่อยได้ object สุดท้าย ควรใช้ pattern ใด", o:["Builder","Singleton","Adapter","Observer"], a:0, e:"Builder แบ่งการสร้างเป็นสเต็ปย่อย เหมือนตัวอย่างหุ่นยนต์ของอาจารย์"},
+    {s:"t", q:"เมธอด copy() ใช้ super.clone() โดยไม่ได้คัดลอก array scores เพิ่ม หลังแก้ copy.scores[0] = 99 ค่า original.scores[0] จะเป็นอย่างไร", o:["เปลี่ยนเป็น 99 ด้วย เพราะเป็น shallow copy ที่ใช้ array ร่วมกัน","คงค่าเดิม เพราะ clone สร้าง array ใหม่เสมอ","กลายเป็น 0","เกิด CloneNotSupportedException"], a:0, e:"shallow copy คัดลอกแค่ reference ถ้าต้องการแยกกันต้อง deep copy (clone array ด้วย)"},
+    {s:"t", q:"โปรแกรมมีหลายหน้าจอที่ต้องใช้การเชื่อมต่อฐานข้อมูล ต้องการสร้าง connection ครั้งเดียวแล้วใช้ร่วมกันทุกหน้าจอ ควรใช้ pattern ใด", o:["Singleton","Prototype","Factory Method","Decorator"], a:0, e:"ตัวอย่างในคลิป: Screen A, B, C ใช้ connection เดิม ประหยัดกว่าต่อใหม่"},
+    {s:"t", q:"คลาส Settings มี constructor เป็น private แต่ทุกครั้งที่เรียก getInstance() ได้ object คนละตัว สาเหตุน่าจะเป็นข้อใด", c:`public static Settings getInstance() {
+    return new Settings();
+}`, o:["getInstance สร้าง object ใหม่ทุกครั้ง ต้องเก็บไว้ใน private static field แล้วคืนตัวเดิม","constructor ต้องเป็น public","ต้องประกาศคลาสเป็น abstract","ต้องใช้ clone() แทน new"], a:0, e:"Singleton ต้องเก็บ instance เดียวไว้ใน static field"},
+    {s:"ex", q:"ข้อใดอธิบาย deep copy ได้ถูกต้อง", o:["สร้าง object ใหม่และคัดลอกข้อมูลภายในใหม่ทั้งหมด แก้ตัวหนึ่งไม่กระทบอีกตัว","สร้าง pointer ใหม่ชี้ไปที่ object เดิม","คัดลอกเฉพาะ field ที่เป็น primitive","ทำให้ object กลายเป็น Singleton"], a:0, e:"Deep = ลึก คัดลอกจริงทุกชั้น"}
+  ]
+});
+
+TOPICS.push({
+  id: "g2", lec: "Lec 10", title: "GoF · Structural", w: "hi",
+  ask: [
+    ["Adapter", "แปลง interface/format หนึ่งให้ใช้กับอีกฝั่งได้ (XML → JSON)"],
+    ["Bridge", "แยกสองฝั่งออกจากกันแล้วเชื่อมด้วยสะพาน เปลี่ยนฝั่งหนึ่งไม่กระทบอีกฝั่ง (ทีวี–รีโมท)"],
+    ["Composite", "โครงสร้างต้นไม้ ใช้ตัวเดี่ยวกับกลุ่มด้วยเมธอดเดียวกัน · อาจารย์อธิบายว่าแตกทีละ 2 ทางเหมือน binary tree (สไลด์ไม่ได้จำกัดที่ 2)"],
+    ["Decorator", "ห่อความสามารถเป็นชั้น ๆ (wrapper) — ตุ๊กตารัสเซีย, กาแฟ + นม + ช็อต"],
+    ["Facade", "หน้าฉากที่ใช้ง่าย ซ่อนความซับซ้อนไว้ข้างหลัง"],
+    ["Flyweight", "แชร์ object ที่ซ้ำเพื่อลด RAM (ต้นไม้ต้นเดียวเลื่อนตำแหน่งเป็นป่า)"],
+    ["Proxy", "ตัวกลาง/ตัวแทนที่เราติดต่อแทนตัวจริง (proxy อินเทอร์เน็ตเก็บเว็บไว้ให้ดึงเร็วขึ้น)"]
+  ],
+  summary: `
+<table>
+<tr><th>Pattern</th><th>แนวคิด</th><th>ตัวอย่างของอาจารย์ / สถานการณ์ข้อสอบ</th></tr>
+<tr><td>Adapter</td><td><mark>แปลง</mark>สิ่งที่มีให้เข้ากับที่ต้องการ</td><td>XML → JSON · เซนเซอร์มี readFahrenheit แต่ระบบต้องการ readCelsius</td></tr>
+<tr><td>Bridge</td><td>แยก 2 มิติที่เปลี่ยนอิสระ เชื่อมผ่านสะพาน</td><td>ทีวีหลายยี่ห้อ × รีโมทหลายแบบ · ป้อม 2 ป้อมแบ่งแรงศัตรู</td></tr>
+<tr><td>Composite</td><td>โครงสร้าง<mark>ต้นไม้</mark> ตัวเดี่ยว (leaf) กับกลุ่ม (composite) ใช้ interface เดียวกัน</td><td>Playlist มีทั้ง Clip และ Playlist ย่อย · duration() ของกลุ่ม = ผลรวมลูก</td></tr>
+<tr><td>Decorator</td><td><mark>ห่อ</mark>เพิ่มความสามารถทีละชั้น ไม่แก้คลาสเดิม</td><td>กาแฟ 20 บาท + นม + ช็อต · ตุ๊กตาแม่ลูกดก</td></tr>
+<tr><td>Facade</td><td>ประตูหน้าที่ใช้ง่าย <mark>ซ่อนระบบย่อยซับซ้อน</mark></td><td>placeOrder() เรียก stock, payment, shipping ให้</td></tr>
+<tr><td>Flyweight</td><td><mark>แชร์</mark>ส่วนที่ซ้ำ ลดหน่วยความจำ</td><td>ต้นไม้ในเกม: รูปร่างแชร์ ตำแหน่งแยก</td></tr>
+<tr><td>Proxy</td><td><mark>ตัวแทน</mark>คุมการเข้าถึงตัวจริง (cache, lazy load, ตรวจสิทธิ์)</td><td>proxy อินเทอร์เน็ต · ฝากคนหน้าประตูไปคุยให้</td></tr>
+</table>
+<h4>ตัวที่ชอบสับสน</h4>
+<p><b>Decorator vs Proxy</b>: interface เหมือนกันทั้งคู่ · Decorator <mark>เพิ่มความสามารถ</mark> ซ้อนได้หลายชั้น · Proxy <mark>ควบคุมการเข้าถึง</mark> ตัวจริง</p>
+<p><b>Adapter vs Facade</b>: Adapter แปลง interface ให้ตรงกับที่ต้องการ · Facade ทำ interface ใหม่ที่ง่ายกว่าครอบระบบย่อยหลายตัว</p>
+<p><b>Flyweight vs Singleton</b>: อาจารย์บอก "คล้าย Singleton แต่ไม่ใช่ซะทีเดียว" — Singleton มีตัวเดียว · Flyweight มีหลายตัวที่แชร์ส่วนซ้ำกัน</p>
+<p class="note">Decorator ต้อง<b>เรียกตัวที่ถูกห่อ</b>ด้วย เช่น <code>draw() { inner.draw(); drawBorder(); }</code> ถ้าเรียกแค่ drawBorder() เนื้อหาเดิมจะหาย</p>`,
+  quiz: [
+    {s:"t", q:"ระบบใหม่ต้องอ่านอุณหภูมิผ่าน Temperature.readCelsius() แต่เซนเซอร์เดิมมีเพียง readFahrenheit() และห้ามแก้คลาสเซนเซอร์ ควรใช้ pattern ใด", o:["Adapter","Facade","Proxy","Flyweight"], a:0, e:"Adapter ห่อเซนเซอร์เดิมแล้วแปลงค่าให้ตรงกับ interface ใหม่"},
+    {s:"t", q:"มีทีวีหลายยี่ห้อและรีโมทหลายแบบ ต้องการเปลี่ยนฝั่งใดฝั่งหนึ่งได้โดยไม่กระทบอีกฝั่ง และไม่ต้องสร้างคลาสทุกคู่ผสม ควรใช้ pattern ใด", o:["Bridge","Adapter","Decorator","Composite"], a:0, e:"Bridge แยก abstraction (รีโมท) ออกจาก implementation (ทีวี)"},
+    {s:"t", q:"ระบบเพลย์ลิสต์ใช้ Composite: Clip.duration() คืนความยาวคลิป ส่วน Playlist.duration() ควรทำอย่างไร", o:["รวม duration() ของสมาชิกทุกตัว ทั้ง Clip และ Playlist ย่อย","คืนความยาวของคลิปแรกเท่านั้น","คืนจำนวนสมาชิก","คืน 0 เพราะ Playlist ไม่ใช่คลิป"], a:0, e:"Composite ให้กลุ่มทำงานผ่าน interface เดียวกับตัวเดี่ยว โดยส่งต่อให้ลูกแล้วรวมผล"},
+    {s:"t", q:"ร้านกาแฟคิดราคากาแฟพื้นฐาน แล้วบวกราคาเพิ่มตามท็อปปิ้งที่ห่อเพิ่มทีละชั้น (นม ช็อต วิปครีม) ควรใช้ pattern ใด", o:["Decorator","Builder","Strategy","Singleton"], a:0, e:"ตัวอย่างของอาจารย์: decorate ต่อยอดจากพื้นฐานไปเรื่อย ๆ"},
+    {s:"t", q:"BorderDecorator implements Widget และเก็บ Widget inner ไว้ แต่ draw() เรียกเพียง drawBorder() เนื้อหาเดิมจึงไม่แสดง ควรแก้อย่างไร", o:["ใน draw() ให้เรียก inner.draw() แล้วตามด้วย drawBorder()","ลบ field inner ออก","ให้ BorderDecorator extends คลาสเนื้อหาโดยตรง","เปลี่ยนเป็น Singleton"], a:0, e:"Decorator ต้องส่งต่อการทำงานให้ตัวที่ถูกห่อ แล้วเพิ่มพฤติกรรมของตัวเอง"},
+    {s:"t", q:"OrderService มีเมธอด placeOrder() ที่เรียก Inventory, Payment และ Shipping ให้ครบในคำสั่งเดียว ผู้เรียกไม่ต้องรู้ลำดับภายใน นี่คือ pattern ใด", o:["Facade","Proxy","Bridge","Composite"], a:0, e:"Facade เป็นหน้าฉากที่ใช้ง่าย ซ่อนความซับซ้อนข้างหลัง"},
+    {s:"t", q:"เกมต้องวาดต้นไม้ 100,000 ต้น โดยรูปทรงและพื้นผิวของต้นไม้ชนิดเดียวกันใช้ object ร่วมกัน แต่ละต้นเก็บเพียงพิกัดของตัวเอง ควรใช้ pattern ใด", o:["Flyweight","Prototype","Singleton","Decorator"], a:0, e:"Flyweight แชร์ส่วนที่ซ้ำ (intrinsic) แยกส่วนเฉพาะ (extrinsic) เพื่อลด RAM"},
+    {s:"t", q:"ImageProxy โหลดรูปความละเอียดสูงจริงเฉพาะตอนเรียก display() ครั้งแรก และเก็บไว้ใช้ครั้งต่อไป ผู้เรียกใช้ผ่าน interface Image เหมือนเดิม นี่คือ pattern ใด", o:["Proxy","Adapter","Facade","Composite"], a:0, e:"Proxy เป็นตัวแทนควบคุมการเข้าถึงตัวจริง (lazy load / cache)"},
+    {s:"ex", q:"คู่ใดเป็น GoF Structural Pattern ทั้งสองรายการ", o:["Adapter และ Facade","Observer และ Proxy","Builder และ Decorator","Strategy และ Composite"], a:0, e:"Observer, Strategy = Behavioral · Builder = Creational"},
+    {s:"ex", q:"Decorator กับ Proxy ต่างกันอย่างไร", o:["Decorator เพิ่มความสามารถและซ้อนได้หลายชั้น ส่วน Proxy ควบคุมการเข้าถึงตัวจริง","Decorator เปลี่ยน interface ส่วน Proxy คง interface","Proxy สร้าง object เป็นชุด ส่วน Decorator สร้างทีละตัว","ไม่ต่างกัน เป็นชื่อเรียกต่างกันของ pattern เดียว"], a:0, e:"ทั้งคู่ใช้ interface เดียวกับตัวจริง แต่เจตนาต่างกัน"}
+  ]
+});
+
+TOPICS.push({
+  id: "g3", lec: "Lec 10", title: "GoF · Behavioral", w: "hi",
+  ask: [
+    ["Chain of Responsibility", "ส่งต่อปัญหาไปเรื่อย ๆ จนเจอคนที่จัดการได้ (call center: ระบบอัตโนมัติ → operator → technician) · โค้ด: handler + setNext"],
+    ["Command", "ผูกคำสั่งเป็น object เอาไปผูกกับอะไรก็ได้ (ปุ่ม / Ctrl+C / เมนู Edit เรียก copy เดียวกัน)"],
+    ["Iterator", "เก็บวิธีวน/ท่องโครงสร้างข้อมูล (DFS ลงลึก / BFS แนวกว้าง)"],
+    ["Mediator", "ตัวกลางคุมจังหวะ (สัญญาณไฟแดง, หอบังคับการบิน)"],
+    ["Memento", "เก็บ snapshot / สถานะ / ประวัติไว้ย้อนกลับ"],
+    ["Observer", "subscribe รับแจ้งเตือน และ unsubscribe ได้ (จดหมายข่าวร้าน)"],
+    ["State", "พฤติกรรมเปลี่ยนตามสถานะ เดินตาม stage ข้ามไม่ได้ (เครื่องซักผ้าหยอดเหรียญ)"],
+    ["Strategy", "เลือกกลยุทธ์/วิธีได้ (เดินทางด้วยเครื่องบิน/จักรยาน/บัส · เครื่องคิดเลข add/subtract)"],
+    ["Template Method", "ขั้นตอนที่เตรียมไว้แล้วเหมือนสูตรอาหาร ยุบส่วนซ้ำ แยกส่วนต่าง (เปิดไฟล์ doc/csv/pdf)"],
+    ["Visitor", "วิ่งเข้าไปเยี่ยมแต่ละจุดเพื่อทำงาน (คำนวณส่วนลดหลายโปรโมชัน)"]
+  ],
+  summary: `
+<table>
+<tr><th>Pattern</th><th>แนวคิด</th><th>ตัวอย่าง</th></tr>
+<tr><td>Chain of Responsibility</td><td>ส่งคำขอผ่าน<mark>สายโซ่</mark> handler จนมีคนรับ</td><td>Call center, การอนุมัติตามวงเงิน</td></tr>
+<tr><td>Command</td><td>ห่อ<mark>การกระทำเป็น object</mark> ผูกกับ UI ได้หลายจุด, ทำ undo/queue ได้</td><td>Copy จากปุ่ม/Ctrl+C/เมนู</td></tr>
+<tr><td>Interpreter</td><td>ภาษาเล็กสำหรับกฎเฉพาะ (อาจารย์ไม่ได้พูด)</td><td>ตัวแปลนิพจน์</td></tr>
+<tr><td>Iterator</td><td><mark>วนผ่านสมาชิก</mark>โดยไม่เปิดโครงสร้างภายใน</td><td>DFS / BFS, for-each</td></tr>
+<tr><td>Mediator</td><td>ให้ object คุยผ่าน<mark>ตัวกลาง</mark> แทนคุยกันตรง</td><td>ไฟจราจร, หอบังคับการบิน, ห้องแชท</td></tr>
+<tr><td>Memento</td><td>เก็บ<mark>สถานะไว้คืน</mark> (undo) โดยไม่เปิดข้อมูลภายใน</td><td>snapshot, save game</td></tr>
+<tr><td>Observer</td><td>ผู้ติดตาม <mark>subscribe</mark> แล้วถูกแจ้งเมื่อมีเหตุการณ์</td><td>จดหมายข่าว, event listener</td></tr>
+<tr><td>State</td><td>พฤติกรรมเปลี่ยนตาม<mark>สถานะภายใน</mark> เปลี่ยนสถานะตามลำดับที่กำหนด</td><td>เครื่องซักผ้า: เลือกโหมด → หยอดเหรียญ → Start</td></tr>
+<tr><td>Strategy</td><td><mark>สลับอัลกอริทึม</mark>ผ่าน interface เดียว เลือกตอนรัน</td><td>วิธีเดินทาง, เครื่องคิดเลข</td></tr>
+<tr><td>Template Method</td><td>คลาสแม่<mark>ล็อกโครงขั้นตอน</mark> คลาสลูกเติมบางขั้น</td><td>สูตรผัดกะเพรา, อ่านไฟล์ → parse → analysis</td></tr>
+<tr><td>Visitor</td><td>เพิ่ม operation ใหม่ให้โครงสร้างที่คงที่ โดยไม่แก้คลาสเดิม</td><td>คำนวณส่วนลดหลายแบบ</td></tr>
+</table>
+<h4>ตัวที่ชอบสับสน</h4>
+<p><b>Strategy vs State</b>: Strategy ผู้ใช้<mark>เลือก</mark>วิธีเอง · State object <mark>เปลี่ยนสถานะเอง</mark>ตามเหตุการณ์ · Template Method ใช้การสืบทอดล็อกลำดับขั้น</p>
+<p><b>Observer vs Mediator</b>: Observer กระจายข่าวทางเดียวให้ผู้ติดตาม · Mediator เป็นศูนย์กลางประสานหลาย object ที่คุยกันไปมา</p>
+<p><b>Command vs Memento</b> (เรื่อง undo): Command เก็บ<mark>การกระทำ</mark> · Memento เก็บ<mark>สถานะ</mark></p>`,
+  quiz: [
+    {s:"t", q:"ระบบช่วยเหลือลูกค้าส่งคำขอผ่านบอตอัตโนมัติ → พนักงานรับสาย → ช่างเทคนิค โดยแต่ละขั้นจัดการเองหรือส่งต่อไปขั้นถัดไป เป็น pattern ใด", o:["Chain of Responsibility","Mediator","Observer","Command"], a:0, e:"ตัวอย่าง call center ของอาจารย์ — สร้าง handler แล้ว setNext ต่อกันไป"},
+    {s:"t", q:"ปุ่ม Copy, คีย์ลัด Ctrl+C และเมนู Edit → Copy เรียกใช้ object CopyAction ตัวเดียวกัน และรองรับ undo ได้ เป็น pattern ใด", o:["Command","Strategy","Facade","Iterator"], a:0, e:"Command ห่อการกระทำเป็น object ผูกกับ UI ได้หลายจุด"},
+    {s:"t", q:"ระบบใช้ Observer เริ่มต้น Screen และ Log subscribe ไว้ จากนั้น Log unsubscribe แล้วเกิดเหตุการณ์ใหม่ ใครได้รับแจ้ง", o:["Screen เท่านั้น","Log เท่านั้น","ทั้ง Screen และ Log","ไม่มีใครได้รับ"], a:0, e:"แจ้งเฉพาะผู้ที่ยังสมัครรับอยู่"},
+    {s:"t", q:"เครื่องซักผ้าหยอดเหรียญต้องเลือกโหมดก่อน แล้วหยอดเหรียญ จึงกด Start ได้ ปุ่มเดียวกันทำงานต่างกันตามขั้นที่อยู่ ควรใช้ pattern ใด", o:["State","Strategy","Builder","Memento"], a:0, e:"พฤติกรรมขึ้นกับสถานะปัจจุบัน และเปลี่ยนสถานะตามลำดับที่กำหนด ข้ามไม่ได้"},
+    {s:"t", q:"TextRenderer มี field policy อ้างอิงวิธีจัดข้อความ (ชิดซ้าย/กึ่งกลาง/ชิดขวา) ผู้ใช้เปลี่ยน policy ได้ขณะโปรแกรมทำงาน เป็น pattern ใด", o:["Strategy","State","Template Method","Visitor"], a:0, e:"สลับอัลกอริทึมผ่าน interface เดียว เหมือนตัวอย่างเครื่องคิดเลขที่เลือก add/subtract"},
+    {s:"t", q:"BaseProcess กำหนด run() เป็น final และเรียก load(), transform(), finish() ตามลำดับ โดย transform() เป็น abstract ให้คลาสลูกเขียน เป็น pattern ใด", o:["Template Method","Strategy","Chain of Responsibility","Builder"], a:0, e:"คลาสแม่ล็อกลำดับขั้นตอน (เหมือนสูตรอาหาร) คลาสลูกเติมเฉพาะขั้นที่ต่าง"},
+    {s:"t", q:"เครื่องบินหลายลำไม่สื่อสารกันเอง แต่ทุกลำติดต่อผ่านหอบังคับการบินที่ตัดสินว่าใครลงจอดก่อน เป็น pattern ใด", o:["Mediator","Observer","Proxy","Facade"], a:0, e:"ตัวกลางคุมจังหวะ ลดการผูกกันระหว่าง object"},
+    {s:"t", q:"โปรแกรมแก้ไขข้อความต้องเก็บสถานะก่อนแก้ไว้หลายจุดเพื่อกด undo กลับไป โดยไม่เปิดเผยข้อมูลภายในของ Editor เป็น pattern ใด", o:["Memento","Command","Prototype","Iterator"], a:0, e:"Memento = snapshot ของสถานะ"},
+    {s:"t", q:"ต้องการเดินผ่านสมาชิกของโครงสร้างข้อมูลแบบต้นไม้ โดยเลือกได้ว่าจะไปแนวลึกหรือแนวกว้าง และผู้ใช้ไม่ต้องรู้โครงสร้างภายใน เป็น pattern ใด", o:["Iterator","Composite","Visitor","Mediator"], a:0, e:"Iterator เก็บวิธีการวนไว้ (DFS/BFS ตามที่อาจารย์ยก)"},
+    {s:"t", q:"ระบบต้องคำนวณส่วนลดหลายแบบ (สมาชิก, ซื้อเกิน 1,000 บาท, ซื้อ A แถม B) โดยวิ่งผ่านแต่ละรายการในตะกร้า และอยากเพิ่ม operation ใหม่โดยไม่แก้คลาสสินค้า เป็น pattern ใด", o:["Visitor","Decorator","State","Singleton"], a:0, e:"Visitor แยก operation ออกจากโครงสร้าง object"},
+    {s:"ex", q:"Strategy กับ State ต่างกันอย่างไร", o:["Strategy ผู้ใช้เลือกวิธีเอง ส่วน State เปลี่ยนพฤติกรรมเองตามสถานะภายในที่เปลี่ยนไป","Strategy ใช้สร้าง object ส่วน State ใช้ทำลาย object","Strategy เป็น Structural ส่วน State เป็น Creational","ไม่ต่างกันเลย"], a:0, e:"โครงสร้างคล้ายกันแต่ใครเป็นคนเปลี่ยนต่างกัน"},
+    {s:"ex", q:"Behavioral pattern ใดที่อยู่ในสไลด์แต่อาจารย์ไม่ได้อธิบายในคลิปทบทวน", o:["Interpreter","Observer","Visitor","Strategy"], a:0, e:"Behavioral มี 11 ตัว อาจารย์พูด 10 ตัว ขาด Interpreter (สร้างภาษาเล็กสำหรับกฎเฉพาะ)"}
+  ]
+});
+TOPICS.push({
+  id: "t1", lec: "Lec 11", title: "Multithreading", w: "hi",
+  ask: [
+    ["Multithreading คืออะไร", "CPU 1 core ทำได้ทีละงาน → สลับทำ (รับ 0.01 วิ ส่ง 0.01 วิ) จนดูเหมือนทำพร้อมกัน"],
+    ["ใครตัดสินว่าเทรดไหนได้ CPU", "<mark>OS / scheduler</mark> ไม่ใช่โปรแกรมเมอร์ เรามีหน้าที่แค่สร้างเทรด"],
+    ["วงจรชีวิตเทรด: สร้าง, block, interrupt, sleep", "New → Runnable → Running → Blocked (sleep / รอ IO / รอ lock) → Dead · อาจารย์ให้ไปดูเอง"]
+  ],
+  summary: `
+<h4>แนวคิด</h4>
+<p><b>Multitasking (time-sharing)</b>: CPU ตัวเดียวสลับทำหลายงาน · <b>Multiprocessing</b>: มีหลาย CPU ทำพร้อมกันจริง · <b>Thread</b> = ลำดับคำสั่งหนึ่งสายในโปรแกรม</p>
+<h4>สร้าง thread 2 วิธี</h4>
+<p>1) <code>class T extends Thread</code> แล้ว override <code>run()</code> · 2) <code>class R implements Runnable</code> แล้วส่งให้ <code>new Thread(r)</code> (ดีกว่าเพราะยัง extends คลาสอื่นได้)</p>
+<p><mark>ต้องเรียก <code>start()</code></mark> จึงจะได้ thread ใหม่ ซึ่งจะเรียก run() ให้เอง · เรียก <code>run()</code> ตรง ๆ = ทำใน thread ปัจจุบัน ไม่มี thread ใหม่</p>
+<h4>สถานะ (ตามสไลด์)</h4>
+<table>
+<tr><th>สถานะ</th><th>เมื่อไร</th></tr>
+<tr><td>New</td><td>สร้าง object แล้ว ยังไม่ start()</td></tr>
+<tr><td>Runnable</td><td>พร้อมทำงาน รอ scheduler เลือก</td></tr>
+<tr><td>Running</td><td>กำลังใช้ CPU</td></tr>
+<tr><td>Blocked</td><td>sleep(), รอ IO, รอ lock, wait()</td></tr>
+<tr><td>Dead</td><td>run() จบ หรือเกิด exception ที่ไม่ได้จัดการ</td></tr>
+</table>
+<p>Scheduler แบบ <b>non-preemptive</b> (thread ทำจนหยุดเอง) / <b>preemptive</b> (ถูกแย่ง CPU ได้เมื่อหมดเวลาหรือมี priority สูงกว่า) · ลำดับการทำงานของ thread <mark>คาดเดาไม่ได้</mark></p>
+<h4>ปัญหาข้อมูลร่วม</h4>
+<p><b>Race condition</b>: หลาย thread แก้ตัวแปรเดียวกันพร้อมกัน (เช่น <code>count++</code>) ผลผิด → ใช้ <code>synchronized</code> บน <mark>lock ตัวเดียวกัน</mark> · <code>synchronized(new Object())</code> ไม่ช่วยเพราะได้ lock ใหม่ทุกครั้ง</p>
+<p><code>join()</code> รอให้ thread อื่นจบก่อน · <code>sleep()</code> ใน synchronized <mark>ไม่ปล่อย lock</mark> · <code>wait()/notify()</code> ใช้ประสานงาน · Deadlock: สองงานขอ lock สลับลำดับกัน → แก้โดยขอ lock ตามลำดับเดียวกันเสมอ</p>`,
+  quiz: [
+    {s:"t", q:"คอมพิวเตอร์มี CPU 1 core แต่โปรแกรมรับและส่งข้อมูลได้ \"พร้อมกัน\" ด้วย multithreading เพราะอะไร", o:["CPU สลับทำงานแต่ละ thread เป็นช่วงสั้น ๆ จนดูเหมือนทำพร้อมกัน","Java สร้าง CPU เสมือนเพิ่มอีกตัว","thread ทำงานขนานกันจริงบน core เดียว","OS ปิดงานอื่นทั้งหมดชั่วคราว"], a:0, e:"ตัวอย่างอาจารย์: รับ 0.01 วินาที แล้วสลับไปส่ง 0.01 วินาที"},
+    {s:"t", q:"ใครเป็นผู้ตัดสินว่า thread ใดในสถานะ Runnable จะได้ใช้ CPU", o:["Scheduler ของ JVM/OS","โปรแกรมเมอร์ผ่านลำดับการเรียก start()","thread ที่สร้างก่อนได้เสมอ","คลาส Thread ที่มีชื่อยาวที่สุด"], a:0, e:"เรามีหน้าที่สร้างเทรด แต่ scheduler จัดคิวเอง ลำดับจึงคาดเดาไม่ได้"},
+    {s:"t", q:"โค้ดเรียก t.run() แทน t.start() ผลคืออะไร", o:["run() ทำงานใน thread ปัจจุบัน ไม่มี thread ใหม่เกิดขึ้น","ได้ thread ใหม่เหมือน start()","คอมไพล์ไม่ผ่าน","run() จะไม่ถูกเรียกเลย"], a:0, e:"start() เท่านั้นที่สร้าง thread ใหม่แล้วเรียก run() ให้"},
+    {s:"t", q:"สร้าง Thread t = new Thread(r); แต่ยังไม่เรียก start() thread อยู่ในสถานะใด", o:["New","Runnable","Blocked","Dead"], a:0, e:"New = สร้าง object แล้วรอ start()"},
+    {s:"t", q:"thread เรียก Thread.sleep(500) หรือกำลังรออ่านข้อมูลจาก IO อยู่ในสถานะใด", o:["Blocked","Running","New","Dead"], a:0, e:"ตามสไลด์: Block เกิดจาก sleep(), รอ IO หรือรอ lock เมื่อเสร็จจะกลับไป Runnable"},
+    {s:"t", q:"thread ทำ run() จนจบแล้ว อยู่ในสถานะใด", o:["Dead","Blocked","Runnable","New"], a:0, e:"Dead = จบ run() หรือเกิด exception ที่ไม่ได้จัดการ"},
+    {s:"ex", q:"สอง thread เพิ่มตัวแปร count ร่วมกันคนละ 1,000 ครั้งด้วย count++ โดยไม่มี synchronization ผลที่เป็นไปได้คือ", o:["น้อยกว่าหรือเท่ากับ 2,000 เพราะ race condition","ได้ 2,000 เสมอ","มากกว่า 2,000","คอมไพล์ไม่ผ่าน"], a:0, e:"count++ คือ อ่าน-บวก-เขียน ถ้าสอง thread อ่านค่าเดียวกันพร้อมกัน การเพิ่มจะหายไปหนึ่งครั้ง"},
+    {s:"ex", q:"สอง thread ครอบ value++ ด้วย synchronized(new Object()) แต่ผลยังผิดบางครั้ง เพราะอะไร", o:["แต่ละครั้งได้ lock object ใหม่ จึงไม่มีการกันกันจริง ต้องใช้ lock ตัวเดียวกัน","synchronized ใช้กับ ++ ไม่ได้","ต้องใช้ sleep() แทน","new Object() ทำให้เกิด deadlock"], a:0, e:"synchronized กันได้เฉพาะ thread ที่ใช้ lock object เดียวกัน"},
+    {s:"ex", q:"main สร้าง thread a และ b ให้คำนวณคนละส่วนพร้อมกัน แล้วต้องรวมผลหลังทั้งสองเสร็จ ลำดับคำสั่งใดถูก", o:["a.start(); b.start(); a.join(); b.join();","a.start(); a.join(); b.start(); b.join();","a.run(); b.run();","a.join(); b.join(); a.start(); b.start();"], a:0, e:"start ทั้งคู่ก่อนเพื่อให้ทำพร้อมกัน แล้ว join รอให้จบทั้งคู่"},
+    {s:"ex", q:"Thread a อยู่ในบล็อก synchronized(lock) แล้วเรียก Thread.sleep(500) ระหว่างนั้น thread b พยายามเข้าบล็อก synchronized(lock) เดียวกัน ผลคืออะไร", o:["b ต้องรอ เพราะ sleep ไม่ปล่อย lock","b เข้าได้ทันทีเพราะ a กำลังหลับ","a ถูก interrupt อัตโนมัติ","เกิด exception ทันที"], a:0, e:"sleep() ยังถือ lock อยู่ (ต่างจาก wait() ที่ปล่อย lock)"},
+    {s:"ex", q:"งานสองชนิดต้องใช้ lock X และ Y แต่ชนิดหนึ่งขอ X ก่อน Y อีกชนิดขอ Y ก่อน X ทำให้ค้างกันเป็นบางครั้ง วิธีใดช่วยได้", o:["กำหนดให้ทุกงานขอ lock ตามลำดับเดียวกันเสมอ เช่น X ก่อน Y","เพิ่ม Thread.sleep ก่อนขอ lock","เปลี่ยนเป็นเรียก run() แทน start()","สร้าง lock ใหม่ทุกครั้งที่ขอ"], a:0, e:"Deadlock เกิดจากรอกันเป็นวงกลม การเรียงลำดับ lock ตัดวงจรนี้"}
+  ]
+});
+
+TOPICS.push({
+  id: "t2", lec: "Lec 11", title: "Java Socket", w: "hi",
+  ask: [
+    ["ควรใช้ port ช่วงไหน (อาจารย์บอกว่ามีถาม)", "ห้ามใช้ <mark>1–1024</mark> (รวม 1024) เพราะจองไว้ให้ FTP, DNS ฯลฯ · ใช้ได้ เช่น 10,000 / 20,000 / 30,000–60,000 · สูงสุด <mark>65,535</mark>"],
+    ["คลาสที่ใช้ทำ network", "Server ใช้ <code>ServerSocket</code> · Client ใช้ <code>Socket</code>"],
+    ["คำสั่งรอการเชื่อมต่อ (อาจารย์บอกว่ามีถาม)", "<code>accept()</code> — ตัวหลอกอย่าง load ไม่ใช่"]
+  ],
+  summary: `
+<h4>พื้นฐาน</h4>
+<p><b>IP</b> ระบุเครื่อง · <b>Port</b> ระบุโปรแกรมบนเครื่อง เป็นจำนวนเต็มบวก <mark>16 บิต</mark> (0–65,535 ตามสไลด์ อาจารย์พูดในคลิปว่า "64 บิต" น่าจะพูดคลาด) · 0–1024 สงวนไว้ให้บริการระบบ</p>
+<table>
+<tr><th></th><th>TCP</th><th>UDP</th></tr>
+<tr><td>แบบ</td><td>connection-oriented</td><td>ส่ง datagram แยกกัน</td></tr>
+<tr><td>ความน่าเชื่อถือ</td><td>รับประกันถึงครบ ตามลำดับ</td><td>ไม่รับประกัน</td></tr>
+</table>
+<h4>โครงโค้ด</h4>
+<p><b>Server</b>: <code>ServerSocket ss = new ServerSocket(8000);</code> → <code>Socket s = ss.accept();</code> (<mark>หยุดรอจนมี client ต่อเข้ามา</mark>) → ได้ socket ใหม่สำหรับคุยกับ client นั้น</p>
+<p><b>Client</b>: <code>Socket s = new Socket("localhost", 8000);</code></p>
+<p>อ่าน/เขียน: <code>BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()))</code> · <code>PrintWriter out = new PrintWriter(s.getOutputStream(), true)</code> · <code>readLine()</code> รอจนได้หนึ่งบรรทัด</p>
+<h4>หลาย client</h4>
+<p>วนลูป accept() แล้ว<mark>สร้าง thread ใหม่ต่อ client</mark> (ClientHandler implements Runnable) เพื่อให้ server กลับไปรอ accept รายต่อไปได้ · ห้องแชทเก็บ PrintWriter ทุกคนไว้ใน Set แล้วส่งต่อให้ทุกคน</p>
+<h4>InetAddress</h4>
+<p><code>getByName("host")</code> แปลงชื่อเป็น IP ผ่าน DNS · <code>getLocalHost()</code> · <code>127.0.0.1</code> / <code>localhost</code> = <mark>เครื่องตัวเอง</mark> เครื่องอื่นต้องใช้ IP จริงของ server</p>`,
+  quiz: [
+    {s:"t", q:"ฝั่ง server ใช้คำสั่งใดในการหยุดรอให้ client เชื่อมต่อเข้ามา", o:["accept()","load()","listen()","connect()"], a:0, e:"อาจารย์ย้ำ: ข้อสอบถามคำสั่งรอการเชื่อมต่อ ตอบ accept · listen() ไม่มีใน ServerSocket ของ Java"},
+    {s:"t", q:"ในโปรแกรมแชท Java ฝั่ง server และฝั่ง client ใช้คลาสใดตามลำดับ", o:["ServerSocket / Socket","Socket / ServerSocket","ServerSocket / ClientSocket","DatagramSocket / ServerSocket"], a:0, e:"ไม่มีคลาส ClientSocket — client ใช้ Socket เฉย ๆ"},
+    {s:"t", q:"นักศึกษาเขียน chat server เอง ควรเลือก port ใด", o:["20000","80","21","1024"], a:0, e:"1–1024 ถูกสงวนไว้ (HTTP 80, FTP 21) และ 1024 เป๊ะก็ไม่ควรใช้ตามที่อาจารย์บอก"},
+    {s:"t", q:"เลข port ที่ใช้ได้สูงสุดคือเท่าไร", o:["65,535","1,024","99,999","4,294,967,295"], a:0, e:"port เป็นเลข 16 บิต 2¹⁶ − 1 = 65,535"},
+    {s:"t", q:"ข้อใดเป็นเลข port ที่ใช้ไม่ได้ในโปรแกรมของเรา", o:["70000","10000","30000","60000"], a:0, e:"เกิน 65,535 · อีกสามค่าอยู่ในช่วงที่อาจารย์บอกว่าใช้ได้"},
+    {s:"ex", q:"ข้อใดอธิบาย TCP ถูกต้อง", o:["connection-oriented รับประกันว่าข้อมูลถึงครบและตามลำดับ","ส่ง datagram แยกกันโดยไม่รับประกันการถึง","ใช้ได้เฉพาะในเครื่องเดียวกัน","ไม่ต้องใช้ port"], a:0, e:"ข้อ 2 คือ UDP"},
+    {s:"ex", q:"client ใช้ new Socket(\"127.0.0.1\", 6200) ได้ตอนอยู่เครื่องเดียวกับ server แต่ย้าย client ไปอีกเครื่องแล้วต่อไม่ได้ เพราะอะไร", o:["127.0.0.1 หมายถึงเครื่องตัวเอง ต้องใช้ IP จริงของเครื่อง server","port 6200 ใช้ข้ามเครื่องไม่ได้","Socket ใช้ได้เฉพาะ localhost","ต้องเปลี่ยนเป็น ServerSocket ฝั่ง client"], a:0, e:"loopback address ชี้กลับเครื่องที่รันโปรแกรมอยู่"},
+    {s:"ex", q:"หลังเชื่อมต่อ TCP สำเร็จ ทั้ง client และ server เรียก readLine() เป็นคำสั่งแรก โดยยังไม่มีใครส่งข้อมูล ผลคืออะไร", o:["ทั้งสองฝั่งรอกันไปเรื่อย ๆ เพราะต่างคนต่างรอให้อีกฝั่งส่งก่อน","readLine() คืน null ทันที","client ได้ข้อความว่างแล้วทำงานต่อ","การเชื่อมต่อถูกปิดอัตโนมัติ"], a:0, e:"readLine() block จนกว่าจะได้หนึ่งบรรทัดหรือ stream ปิด"},
+    {s:"ex", q:"server ต้องรับหลาย client พร้อมกัน วิธีใดเหมาะ", o:["วนลูป accept() แล้วสร้าง thread ใหม่ให้แต่ละ client","เรียก accept() ครั้งเดียวแล้วใช้ socket นั้นกับทุกคน","สร้าง ServerSocket ใหม่ต่อ client บน port เดิม","ให้ client ต่อกันเองโดยไม่ผ่าน server"], a:0, e:"ตามสไลด์ Multi-Client Server: ClientHandler implements Runnable"},
+    {s:"ex", q:"InetAddress.getByName(\"www.example.com\") ทำอะไร", o:["หา IP address ของชื่อโฮสต์ผ่าน DNS","เปิดหน้าเว็บ","สร้าง ServerSocket","ส่งข้อความไปยังเว็บไซต์"], a:0, e:"InetAddress เป็น interface ของ Java ไปยัง IP และ DNS"}
+  ]
+});
+
+TOPICS.push({
+  id: "f1", lec: "Lec 12", title: "Functional · Lambda · Stream", w: "hi",
+  ask: [
+    ["filter / map ใช้ยังไง", "filter = กรองเฉพาะที่ผ่านเงื่อนไข · map = แปลง/จับคู่ข้อมูลแต่ละตัว · ตัวอย่าง [1,2,3,4] กรองเลขคู่ → [2,4] → ×10 → [20,40]"],
+    ["คำสั่งอื่นที่ให้ไปดู", "reduce, distinct (เอาที่ไม่ซ้ำ), sorted (เรียง), limit (เอา n ตัวแรก), skip (ข้าม n ตัว), flatMap, anyMatch, min, max, average"],
+    ["รูปแบบข้อสอบ", "ให้โค้ดมาแล้วถาม <mark>output</mark>"]
+  ],
+  summary: `
+<h4>Lambda & Functional Interface</h4>
+<p><code>(a, b) -&gt; a + b</code> · <code>x -&gt; x * 2</code> · method reference <code>String::length</code></p>
+<table>
+<tr><th>Interface</th><th>รับ → คืน</th><th>เมธอด</th></tr>
+<tr><td>Function&lt;T,R&gt;</td><td>T → R</td><td>apply · ต่อกันด้วย <code>andThen</code></td></tr>
+<tr><td>Predicate&lt;T&gt;</td><td>T → boolean</td><td>test (ใช้ใน filter)</td></tr>
+<tr><td>Consumer&lt;T&gt;</td><td>T → (ไม่คืน)</td><td>accept (ใช้ใน forEach)</td></tr>
+<tr><td>Supplier&lt;T&gt;</td><td>() → T</td><td>get</td></tr>
+<tr><td>BiFunction / BinaryOperator</td><td>(T,U) → R</td><td>apply (ใช้ใน reduce)</td></tr>
+</table>
+<h4>Stream pipeline</h4>
+<p>แหล่งข้อมูล → <b>intermediate</b> (คืน stream, <mark>lazy</mark> ยังไม่ทำจนกว่าจะมี terminal) → <b>terminal</b> (ได้ผลลัพธ์)</p>
+<table>
+<tr><th>Intermediate</th><th>ทำอะไร</th><th>Terminal</th><th>ทำอะไร</th></tr>
+<tr><td>filter</td><td>กรอง</td><td>collect / toList</td><td>เก็บเป็น List</td></tr>
+<tr><td>map</td><td>แปลงทีละตัว</td><td>count</td><td>นับ (long)</td></tr>
+<tr><td>flatMap</td><td>แตก stream ซ้อนให้แบน</td><td>reduce(id, op)</td><td>ยุบเหลือค่าเดียว</td></tr>
+<tr><td>distinct</td><td>ตัดตัวซ้ำ</td><td>forEach</td><td>ทำกับทุกตัว</td></tr>
+<tr><td>sorted</td><td>เรียง</td><td>anyMatch / allMatch / noneMatch</td><td>boolean</td></tr>
+<tr><td>limit(n)</td><td>เอา n ตัวแรก</td><td>min / max (Comparator)</td><td>Optional</td></tr>
+<tr><td>skip(n)</td><td>ข้าม n ตัวแรก</td><td>sum / average (IntStream)</td><td>average คืน OptionalDouble</td></tr>
+</table>
+<p class="note">reduce ต้องเลือกค่าเริ่มต้น (identity) ให้ถูก: ผลรวมใช้ 0 · <mark>ผลคูณใช้ 1</mark> (ถ้าใช้ 0 ได้ 0 เสมอ)</p>
+<p>ตัวแปรที่ lambda อ้างถึงต้องเป็น effectively final (ห้ามกำหนดค่าใหม่) แต่เรียกเมธอดแก้ข้างใน object ได้ เช่น <code>names.add(x)</code></p>`,
+  quiz: [
+    {s:"t", q:"โค้ดนี้ได้ผลลัพธ์อะไร", c:`List.of(1, 2, 3, 4).stream()
+    .filter(n -> n % 2 == 0)
+    .map(n -> n * 10)
+    .toList();`, o:["[20, 40]","[10, 30]","[10, 20, 30, 40]","[2, 4]"], a:0, e:"ตัวอย่างในคลิป: กรองเลขคู่ได้ 2, 4 แล้วคูณ 10"},
+    {s:"t", q:"โค้ดนี้ได้ผลลัพธ์อะไร", c:`Stream.of(5, 3, 5, 1, 3)
+    .distinct()
+    .sorted()
+    .toList();`, o:["[1, 3, 5]","[5, 3, 1]","[1, 3, 3, 5, 5]","[5, 3, 5, 1, 3]"], a:0, e:"distinct ตัดตัวซ้ำเหลือ 5, 3, 1 แล้ว sorted เรียงน้อยไปมาก"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`int s = IntStream.rangeClosed(1, 10)
+    .skip(2)
+    .limit(3)
+    .sum();
+System.out.println(s);`, o:["12","6","15","55"], a:0, e:"1–10 ข้าม 2 ตัวแรก → เริ่ม 3 · เอา 3 ตัว → 3, 4, 5 · รวม 12"},
+    {s:"t", q:"ต้องการผลคูณของ 3, 4, 5 แต่ได้ 0 ควรแก้อย่างไร", c:`int p = List.of(3, 4, 5).stream()
+    .reduce(0, (a, b) -> a * b);`, o:["เปลี่ยนค่าเริ่มต้นของ reduce จาก 0 เป็น 1","เปลี่ยน a * b เป็น a + b","ใช้ map ก่อน reduce","เปลี่ยน List.of เป็น Set.of"], a:0, e:"0 คูณอะไรก็ได้ 0 · identity ของการคูณคือ 1 จะได้ 60"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`List<Integer> xs = List.of(3, 8, 12);
+System.out.println(xs.stream().anyMatch(n -> n > 10) + " "
+                 + xs.stream().allMatch(n -> n > 10));`, o:["true false","false false","true true","false true"], a:0, e:"มี 12 ที่ > 10 (anyMatch true) แต่ไม่ใช่ทุกตัว (allMatch false)"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`long c = List.of(List.of(1, 2), List.of(3), List.of())
+    .stream()
+    .flatMap(List::stream)
+    .count();
+System.out.println(c);`, o:["3","2","1","6"], a:0, e:"flatMap แตก list ย่อยออกมาเป็น stream เดียว: 1, 2, 3"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`String w = Stream.of("kiwi", "banana", "fig")
+    .max(Comparator.comparing(String::length))
+    .get();
+System.out.println(w);`, o:["banana","kiwi","fig","คอมไพล์ไม่ผ่าน"], a:0, e:"max ตามความยาว: banana (6)"},
+    {s:"t", q:"IntStream.of(2, 4, 9).average() คืนค่าชนิดใดและเท่าไร", o:["OptionalDouble ที่มีค่า 5.0","int 5","double 5.0 โดยตรง","Optional<Integer> ที่มีค่า 5"], a:0, e:"average อาจไม่มีค่า (stream ว่าง) จึงคืน OptionalDouble ใช้ getAsDouble() ดึงค่า"},
+    {s:"t", q:"โค้ดนี้พิมพ์อะไร", c:`long n = Stream.of("java", "is", "fun", "stream")
+    .map(String::length)
+    .filter(len -> len > 3)
+    .count();
+System.out.println(n);`, o:["2","3","4","1"], a:0, e:"ความยาว 4, 2, 3, 6 · ที่ > 3 คือ 4 กับ 6"},
+    {s:"ex", q:"โปรแกรมต้องรับ callback ที่รับข้อความหนึ่งค่าแล้วเขียนลงบันทึก โดยไม่คืนค่า ควรใช้ functional interface ใด", o:["Consumer<String>","Supplier<String>","Function<String, String>","Predicate<String>"], a:0, e:"Consumer รับค่าแล้วไม่คืนอะไร"},
+    {s:"ex", q:"length เป็น Function<String,Integer> ส่วน decorate เป็น Function<Integer,String> ต้องการฟังก์ชันที่รับ String แล้วคืน String โดยทำ length ก่อน ควรเขียนอย่างไร", o:["length.andThen(decorate)","decorate.andThen(length)","length.compose(decorate)","decorate.apply(length)"], a:0, e:"andThen ทำตัวซ้ายก่อนแล้วส่งผลให้ตัวขวา"},
+    {s:"ex", q:"โค้ดนี้พิมพ์อะไรออกหน้าจอ", c:`Stream.of(1, 2, 3)
+    .peek(x -> System.out.print(x))
+    .map(x -> x * 2);`, o:["ไม่พิมพ์อะไรเลย เพราะไม่มี terminal operation","123","246","123246"], a:0, e:"intermediate operation เป็น lazy จะไม่ทำงานจนกว่าจะมี terminal เช่น toList() หรือ count()"}
+  ]
+});
+TOPICS.push({
+  id: "o1", lec: "Lec 13", title: "Requirement & Use Case", w: "hi",
+  ask: [
+    ["การเก็บ requirement ที่ดีควรทำยังไง", "ชัดเจน วัดผลได้ ทดสอบได้ ไม่กำกวม แยก Functional / Non-functional"],
+    ["Use case diagram หมายถึงอะไร", "แผนภาพแสดงว่า <mark>actor</mark> ใช้ระบบทำอะไรได้บ้าง (เป้าหมายของผู้ใช้) · ทฤษฎีล้วน ให้ทบทวนจาก Lab 13 Smart Cinema"]
+  ],
+  summary: `
+<h4>Requirement</h4>
+<table>
+<tr><th>ประเภท</th><th>ความหมาย</th><th>ตัวอย่าง</th></tr>
+<tr><td>Functional (FR)</td><td>ระบบต้อง<mark>ทำอะไร</mark></td><td>ผู้ใช้จองที่นั่งได้, ระบบออกใบเสร็จ</td></tr>
+<tr><td>Non-functional (NFR)</td><td>ระบบต้อง<mark>ดีแค่ไหน</mark> (คุณภาพ)</td><td>ตอบสนองภายใน 2 วินาที, รองรับ 1,000 คนพร้อมกัน, ปลอดภัย</td></tr>
+</table>
+<p>Requirement ที่ดี: <mark>ชัดเจน วัดผลได้ ทดสอบได้</mark> ไม่กำกวม · "ต้องเร็ว" ใช้ไม่ได้ เพราะทีมทดสอบตัดสินไม่ได้ว่าผ่านไหม → เขียนเป็น "แสดงผลค้นหาภายใน 2 วินาทีเมื่อมีผู้ใช้ 500 คนพร้อมกัน"</p>
+<h4>Use Case Diagram</h4>
+<table>
+<tr><th>องค์ประกอบ</th><th>สัญลักษณ์ / ความหมาย</th></tr>
+<tr><td>Actor</td><td>คนรูปก้าง — บทบาทที่อยู่<mark>นอกระบบ</mark> (คน หรือระบบภายนอก เช่น Payment Gateway)</td></tr>
+<tr><td>Use case</td><td>วงรี — เป้าหมายที่ actor ต้องการ ตั้งชื่อเป็นกริยา เช่น "จองที่นั่ง"</td></tr>
+<tr><td>System boundary</td><td>กรอบสี่เหลี่ยม ขอบเขตของระบบ</td></tr>
+<tr><td>&lt;&lt;include&gt;&gt;</td><td>use case หลัก<mark>เรียกใช้เสมอ</mark> (จองตั๋ว include ชำระเงิน)</td></tr>
+<tr><td>&lt;&lt;extend&gt;&gt;</td><td><mark>เพิ่มเติมเป็นบางเงื่อนไข</mark> (ใช้คูปอง extend ชำระเงิน)</td></tr>
+<tr><td>Generalization</td><td>actor/use case ลูกสืบทอดจากแม่</td></tr>
+</table>
+<p>Use case description: ชื่อ, actor, precondition, <b>main success scenario</b> (เส้นทางปกติ), <b>alternative flow</b> (กรณีอื่น/ผิดพลาด), postcondition</p>`,
+  quiz: [
+    {s:"t", q:"เอกสารระบุว่า \"หน้าค้นหาต้องเร็วและรองรับผู้ใช้ได้มาก\" ทีมทดสอบตัดสินไม่ได้ว่าผ่านหรือไม่ ควรแก้ requirement อย่างไร", o:["ระบุค่าที่วัดได้ เช่น แสดงผลภายใน 2 วินาทีเมื่อมีผู้ใช้ 500 คนพร้อมกัน","เปลี่ยนคำว่า \"เร็ว\" เป็น \"เร็วมาก\"","ย้ายไปเขียนในคู่มือผู้ใช้","ลบ requirement นี้ทิ้ง"], a:0, e:"requirement ที่ดีต้องวัดผลและทดสอบได้"},
+    {s:"t", q:"ข้อใดเป็น Non-functional requirement", o:["ระบบต้องตอบสนองการจองภายใน 2 วินาที","ผู้ใช้ต้องจองที่นั่งได้","ระบบต้องออกใบเสร็จหลังชำระเงิน","ผู้ดูแลต้องเพิ่มรอบฉายได้"], a:0, e:"NFR พูดถึงคุณภาพ (ความเร็ว ความปลอดภัย) ข้ออื่นเป็นสิ่งที่ระบบต้องทำ (FR)"},
+    {s:"t", q:"ใน Use Case Diagram ของระบบจองตั๋วหนัง ข้อใดเหมาะเป็น actor", o:["ลูกค้า และระบบชำระเงินภายนอก","ปุ่มจองบนหน้าจอ","ตาราง Seat ในฐานข้อมูล","คลาส BookingController"], a:0, e:"actor คือบทบาทที่อยู่นอกระบบและโต้ตอบกับระบบ"},
+    {s:"t", q:"ทุกครั้งที่ \"จองตั๋ว\" ต้อง \"ชำระเงิน\" เสมอ ส่วน \"ใช้คูปองส่วนลด\" เกิดเฉพาะบางครั้ง ควรใช้ความสัมพันธ์ใด", o:["จองตั๋ว <<include>> ชำระเงิน และ ใช้คูปอง <<extend>> ชำระเงิน","จองตั๋ว <<extend>> ชำระเงิน และ ใช้คูปอง <<include>> ชำระเงิน","ใช้ <<include>> ทั้งคู่","ใช้ generalization ทั้งคู่"], a:0, e:"include = ทำเสมอ · extend = เสริมบางเงื่อนไข"},
+    {s:"t", q:"เดิม NotificationService เป็นบริการภายนอกที่แสดงเป็น actor ต่อมาทีมขยายขอบเขตระบบให้รวม NotificationService เข้ามาอยู่ภายใน diagram ควรเปลี่ยนอย่างไร", o:["NotificationService ไม่ใช่ actor อีกต่อไป เพราะอยู่ในขอบเขตระบบแล้ว","คงเป็น actor ไว้เหมือนเดิม","ให้เป็นทั้ง actor และ use case","เปลี่ยนเป็น system boundary ใหม่"], a:0, e:"actor ต้องอยู่นอก system boundary เสมอ"},
+    {s:"ex", q:"ชื่อ use case ข้อใดเหมาะสมที่สุด", o:["จองที่นั่ง","ปุ่มจอง","ตาราง Booking","หน้า BookingPage.java"], a:0, e:"ชื่อ use case เป็นวลีกริยาแสดงเป้าหมายของ actor ไม่ใช่ชื่อหน้าจอหรือคลาส"},
+    {s:"ex", q:"ใน use case description ส่วนใดอธิบายกรณี \"บัตรเครดิตถูกปฏิเสธ\"", o:["Alternative flow","Main success scenario","Actor","System boundary"], a:0, e:"main success scenario คือเส้นทางที่ทุกอย่างสำเร็จ กรณีอื่นอยู่ใน alternative flow"}
+  ]
+});
+
+TOPICS.push({
+  id: "o2", lec: "Lec 13", title: "UML · Domain · SSD · GRASP", w: "hi",
+  ask: [
+    ["(ไม่มีคำถามตรง ๆ จากอาจารย์)", "อยู่ในสไลด์ OOAD ครั้งที่ 3–5 และ UML relations และออกเยอะใน Practice Final — ควรอ่านไว้"]
+  ],
+  summary: `
+<h4>ความสัมพันธ์ใน Class Diagram</h4>
+<table>
+<tr><th>ความสัมพันธ์</th><th>เส้น</th><th>ความหมาย</th></tr>
+<tr><td>Association</td><td>เส้นทึบ</td><td>รู้จัก/ใช้งานกัน</td></tr>
+<tr><td>Aggregation</td><td>เส้นทึบ + <mark>เพชรโปร่ง</mark> ฝั่ง whole</td><td>has-a ส่วนย่อยอยู่เองได้ (กลุ่มวิจัย–นักวิจัย)</td></tr>
+<tr><td>Composition</td><td>เส้นทึบ + <mark>เพชรทึบ</mark> ฝั่ง whole</td><td>ส่วนย่อยตายตาม whole (Folder–Entry ลบ folder ลบ entry)</td></tr>
+<tr><td>Generalization</td><td>เส้นทึบ + <mark>หัวสามเหลี่ยมโปร่ง</mark> ชี้ไปแม่</td><td>extends</td></tr>
+<tr><td>Realization</td><td><mark>เส้นประ</mark> + หัวสามเหลี่ยมโปร่ง</td><td>implements interface</td></tr>
+<tr><td>Dependency</td><td>เส้นประ + หัวลูกศรเปิด</td><td>ใช้ชั่วคราว (เช่นรับเป็นพารามิเตอร์)</td></tr>
+</table>
+<p><b>Multiplicity</b>: <code>1</code> พอดีหนึ่ง · <code>0..1</code> · <code>*</code> หรือ <code>0..*</code> · <code>1..*</code> · <code>2..5</code> · อ่าน: <code>[Reservation] 1 —— 2..5 [Seat]</code> = หนึ่งการจองมีที่นั่ง 2–5 ที่ และแต่ละที่นั่งอยู่ในการจองเดียว</p>
+<h4>Domain Model</h4>
+<p>แสดง <mark>แนวคิดในโลกจริง</mark> (conceptual class) + attribute + association · ไม่ใส่เมธอด ไม่ใช่ตารางฐานข้อมูลหรือคลาสซอฟต์แวร์ (Loan ✓ / SqlLoanRow ✗) · ถ้าต้องเก็บประวัติความสัมพันธ์หลายครั้ง (สมาชิกเช่าจักรยานคันเดิมหลายครั้ง) ใช้ class กลางเช่น Rental</p>
+<h4>SSD vs DSD</h4>
+<p><b>SSD</b> (System Sequence Diagram): มองระบบเป็น<mark>กล่องดำ</mark> แสดงแค่ actor ↔ :System กับ system event · <b>DSD</b> (Design Sequence Diagram): เปิดกล่องดูว่า object ภายในส่งข้อความหากันอย่างไร · ข้อความใน DSD กลายเป็นเมธอดของ<mark>ผู้รับ</mark></p>
+<h4>GRASP (มอบหน้าที่ให้ใคร)</h4>
+<table>
+<tr><th>Pattern</th><th>คำถามที่ตอบ</th></tr>
+<tr><td>Information Expert</td><td>ให้คนที่<mark>มีข้อมูล</mark>ทำ (OrderItem มี qty, price → คำนวณ lineTotal)</td></tr>
+<tr><td>Creator</td><td>ใครสร้าง B? → A ที่ประกอบ/เก็บ/ใช้ใกล้ชิด B (Order สร้าง OrderItem)</td></tr>
+<tr><td>Controller</td><td>object แรกที่รับ system event จาก UI แล้วประสานงาน (ไม่ทำเองทุกอย่าง)</td></tr>
+<tr><td>Low Coupling / High Cohesion</td><td>พึ่งพากันน้อย / งานในคลาสเป็นเรื่องเดียวกัน</td></tr>
+<tr><td>Polymorphism · Pure Fabrication · Indirection · Protected Variations</td><td>แยกพฤติกรรมตามชนิด · สร้างคลาสเทคนิค (Repository) · ใช้ตัวกลาง · ห่อจุดที่เปลี่ยนบ่อยด้วย interface</td></tr>
+</table>
+<p>GRASP มอบ<mark>หน้าที่</mark> · SOLID ประเมิน<mark>โครงสร้าง</mark> · GoF ให้<mark>โครงสร้างสำเร็จรูป</mark> ใช้ร่วมกันได้</p>`,
+  quiz: [
+    {s:"ex", q:"Folder กับ Entry มีความสัมพันธ์แบบ Composition (Folder เป็น whole) เมื่อลบ Folder จะเกิดอะไรกับ Entry ที่อยู่ข้างใน", o:["ถูกลบไปด้วย เพราะ part มีชีวิตผูกกับ whole","ยังอยู่ต่อได้โดยไม่มี Folder","ย้ายไป Folder อื่นอัตโนมัติ","กลายเป็น aggregation"], a:0, e:"composition (เพชรทึบ) = ส่วนย่อยตายตาม whole"},
+    {s:"ex", q:"เส้นเชื่อม ResearchGroup กับ Researcher มีเพชรโปร่งที่ฝั่ง ResearchGroup หมายความว่าอย่างไร", o:["Aggregation — นักวิจัยเป็นส่วนของกลุ่มแต่ยังอยู่ได้เองเมื่อกลุ่มถูกยุบ","Composition — นักวิจัยถูกลบเมื่อกลุ่มถูกลบ","Generalization — Researcher extends ResearchGroup","Dependency — ใช้กันชั่วคราว"], a:0, e:"เพชรโปร่ง = aggregation, เพชรทึบ = composition"},
+    {s:"ex", q:"โค้ดเขียน class Tablet extends Device ใน UML ควรวาดอย่างไร", o:["เส้นทึบหัวสามเหลี่ยมโปร่ง ชี้จาก Tablet ไป Device","เส้นประหัวสามเหลี่ยมโปร่ง ชี้จาก Device ไป Tablet","เส้นทึบมีเพชรทึบที่ฝั่ง Device","เส้นประหัวลูกศรเปิด"], a:0, e:"generalization = เส้นทึบ + สามเหลี่ยมโปร่งชี้ไปคลาสแม่ · เส้นประ + สามเหลี่ยมคือ implements"},
+    {s:"ex", q:"[Reservation] 1 —— 2..5 [Seat] หมายความว่าอย่างไร", o:["การจองหนึ่งรายการมีที่นั่ง 2 ถึง 5 ที่ และแต่ละที่นั่งเชื่อมกับการจองหนึ่งรายการ","ที่นั่งหนึ่งที่มีการจอง 2 ถึง 5 รายการ","มีการจองได้ 2–5 รายการในระบบ","ที่นั่งมีได้สูงสุด 1 ที่"], a:0, e:"ตัวเลขที่ปลายฝั่งไหน บอกจำนวน object ฝั่งนั้นที่สัมพันธ์กับหนึ่ง object อีกฝั่ง"},
+    {s:"ex", q:"ระหว่างทำ Domain Model ของห้องสมุด ทีมเสนอเปลี่ยน conceptual class จาก Loan เป็น SqlLoanRow เพราะจะเก็บในฐานข้อมูล SQL ข้อใดถูก", o:["ไม่ควร Domain Model แสดงแนวคิดในโลกจริง ไม่ใช่รายละเอียดการเก็บข้อมูล","ควร เพราะ Domain Model ต้องตรงกับตารางฐานข้อมูล","ควร เพราะชื่อยาวกว่าอธิบายได้ชัดกว่า","ไม่ควร เพราะ Domain Model ใช้ได้แค่ NoSQL"], a:0, e:"Domain Model อยู่ระดับ analysis ไม่ผูกกับเทคโนโลยี"},
+    {s:"ex", q:"System Sequence Diagram (SSD) แสดงสิ่งใด", o:["ข้อความระหว่าง actor กับระบบที่มองเป็นกล่องดำ","การส่งข้อความระหว่าง object ภายในระบบ","ความสัมพันธ์ระหว่างคลาสทั้งหมด","ขั้นตอนการทำงานแบบ flowchart ภายในเมธอด"], a:0, e:"SSD ตอบว่าระบบต้องรับ event อะไร ส่วน DSD ตอบว่าภายในใครทำอะไร"},
+    {s:"ex", q:"ใครควรรับผิดชอบคำนวณ lineTotal = quantity × unitPrice ของรายการสั่งซื้อหนึ่งรายการ ตาม GRASP", o:["OrderItem — Information Expert เพราะมีข้อมูล quantity และ unitPrice","OrderController เพราะเป็นตัวแรกที่รับคำสั่ง","OrderRepository เพราะเก็บข้อมูลลงฐานข้อมูล","หน้าจอ UI เพราะเป็นที่แสดงผล"], a:0, e:"Information Expert: ให้งานอยู่กับ object ที่มีข้อมูลที่ต้องใช้"},
+    {s:"ex", q:"ใครควรสร้าง OrderItem ใหม่ตามหลัก Creator", o:["Order เพราะเป็นผู้ประกอบและเก็บ OrderItem","Customer เพราะเป็นคนสั่ง","Database เพราะต้องเก็บข้อมูล","Main เพราะเริ่มโปรแกรม"], a:0, e:"Creator: A ควรสร้าง B ถ้า A ประกอบ (aggregate) หรือเก็บ B"},
+    {s:"ex", q:"Controller ที่ดีตาม GRASP ควรทำอะไร", o:["รับ system event จาก UI แล้วประสานงานให้ object ที่เหมาะสมทำ โดยไม่ทำกฎธุรกิจเองทั้งหมด","คำนวณทุกอย่างเองเพื่อลดจำนวนคลาส","เป็นหน้าจอที่ผู้ใช้กดปุ่ม","เก็บข้อมูลทั้งหมดของระบบ"], a:0, e:"Controller ที่ทำทุกอย่างเองเรียกว่า Fat Controller เป็น design smell"},
+    {s:"ex", q:"DSD แสดงว่า Rental ส่งข้อความ finish(returnDate) ไปยัง Bicycle เมธอด finish ควรอยู่ในคลาสใด", o:["Bicycle — คลาสผู้รับข้อความ","Rental — คลาสผู้ส่ง","คลาสใดก็ได้","Controller เสมอ"], a:0, e:"ข้อความใน DSD กลายเป็น operation ของผู้รับ"}
+  ]
+});
+
+TOPICS.push({
+  id: "q1", lec: "Testing", title: "Software Testing", w: "hi",
+  ask: [
+    ["Software Testing (อาจารย์บอกว่าออก — อยู่ในคลิปวันเสาร์)", "ยังไม่มีคลิปในมือ สรุปจากสไลด์ Java_Software_Testing แทน"]
+  ],
+  summary: `
+<h4>แนวคิด</h4>
+<p>Testing = เทียบ <mark>expected (ควรเป็น)</mark> กับ <mark>actual (เป็นจริง)</mark> · <b>Test oracle</b> = แหล่งอ้างอิงผลที่ถูก (ข้อกำหนด, คำนวณมือ) · เทสต์ผ่านเป็นหลักฐานเฉพาะเคสที่ลอง ไม่ใช่ทุก input</p>
+<p><b>Testing</b> ช่วย<mark>พบ</mark>ปัญหา · <b>Debugging</b> ช่วย<mark>หาสาเหตุและแก้</mark> · คอมไพล์ผ่าน ≠ ถูกต้อง (compiler ไม่ตรวจ logic)</p>
+<h4>ระดับการทดสอบ (Test Pyramid)</h4>
+<table>
+<tr><th>ระดับ</th><th>ตรวจอะไร</th><th>ลักษณะ</th></tr>
+<tr><td>Unit test</td><td>หน่วยเล็ก (คลาส/เมธอด) แยกจาก dependency จริง</td><td>เร็ว มีจำนวนมาก</td></tr>
+<tr><td>Integration test</td><td>ส่วนต่าง ๆ ทำงานร่วมกัน (ไฟล์จริง, DB)</td><td>ช้ากว่า</td></tr>
+<tr><td>System / E2E</td><td>เปิดแอปจริง ทำตามขั้นตอนผู้ใช้ตั้งแต่ต้นจนจบ</td><td>ช้าสุด จำนวนน้อย</td></tr>
+</table>
+<h4>ออกแบบ test case</h4>
+<p><b>Equivalence Partitioning</b>: แบ่งกลุ่ม input ที่ทำงานเหมือนกัน เลือกตัวแทนกลุ่มละตัว · <b>Boundary Value</b>: ทดสอบ<mark>ค่าที่รอยต่อ</mark> (เกรด A ≥ 80 → ทดสอบ 79 และ 80 จับบั๊ก &gt; กับ &gt;= ได้) · <b>Decision Table</b>: หลายเงื่อนไขผสมกัน · <b>Black-box</b> ดูจากข้อกำหนด / <b>White-box</b> ดูจากโค้ดภายใน</p>
+<h4>JUnit</h4>
+<p><code>@Test</code> · <code>assertEquals(expected, actual)</code> (expected มาก่อน) · <code>assertTrue/False</code> · <code>assertNull</code> · <code>assertArrayEquals</code> (เทียบสมาชิก) · <code>assertThrows(X.class, () -&gt; ...)</code> (ส่ง lambda ไม่ใช่เรียกเลย) · <code>assertAll</code></p>
+<p>โครง <b>Arrange – Act – Assert</b> · <code>@BeforeEach</code> เตรียม fixture ใหม่ทุกเทสต์ · เทสต์ต้องไม่พึ่งลำดับกัน · <code>@ParameterizedTest</code> + <code>@ValueSource</code> / <code>@CsvSource</code></p>
+<h4>TDD</h4>
+<p><mark>Red → Green → Refactor</mark>: เขียนเทสต์ที่ล้มก่อน → เขียนโค้ดน้อยที่สุดให้ผ่าน → ปรับโค้ดโดยพฤติกรรมเดิม</p>
+<h4>Test Doubles (Mockito)</h4>
+<p>แทน dependency ที่มีผลข้างเคียง (ส่งอีเมล, DB) · <b>Stub</b> กำหนดคำตอบ (<code>when(...).thenReturn(...)</code>) · <b>Mock</b> ตรวจว่าถูกเรียก (<code>verify(...)</code>) · <b>Fake</b> ทำงานจริงแบบง่าย (repository ในหน่วยความจำ) · รับ dependency ผ่าน constructor เพื่อให้แทนได้</p>
+<h4>คุณภาพของเทสต์</h4>
+<p><b>Coverage</b> บอกว่าโค้ดบรรทัดไหนถูกเรียก <mark>ไม่ได้บอกว่าตรวจถูก</mark> 100% ก็ยังมีบั๊กได้ · <b>Flaky test</b> ผ่านบ้างพังบ้าง (เวลา, random, ลำดับ) → ควบคุมด้วย Clock ที่ส่งเข้ามา · <b>Regression test</b> เก็บเทสต์ของบั๊กที่แก้แล้วไว้กันเกิดซ้ำ · <b>CI</b> รันเทสต์อัตโนมัติทุกครั้งที่โค้ดเปลี่ยน</p>`,
+  quiz: [
+    {s:"t", q:"กติกา: คะแนน ≥ 80 ได้ A โค้ดเขียนเงื่อนไขผิดเป็น score > 80 ค่าทดสอบใดจับบั๊กนี้ได้", o:["80","90","50","100"], a:0, e:"Boundary value: บั๊ก > กับ >= เห็นเฉพาะที่รอยต่อ 80 ได้ B แทน A"},
+    {s:"t", q:"Equivalence Partitioning คืออะไร", o:["แบ่ง input ที่คาดว่าทำงานเหมือนกันเป็นกลุ่ม แล้วเลือกตัวแทนจากแต่ละกลุ่มมาทดสอบ","ทดสอบทุกค่าที่เป็นไปได้","ทดสอบเฉพาะค่าที่ขอบของช่วง","แบ่งทีมทดสอบเป็นกลุ่มเท่า ๆ กัน"], a:0, e:"ข้อ 3 คือ Boundary Value Analysis"},
+    {s:"t", q:"การเรียก assertEquals ข้อใดเขียนตามรูปแบบที่ถูกต้อง เมื่อคาดว่า add(2, 3) ต้องได้ 5", o:["assertEquals(5, calc.add(2, 3));","assertEquals(calc.add(2, 3), 5);","assertTrue(calc.add(2, 3) > 0);","assertEquals(calc.add(2, 3));"], a:0, e:"expected มาก่อน actual · assertTrue(> 0) อ่อนเกินไป ผลผิดอย่าง 6 ก็ผ่าน"},
+    {s:"t", q:"reserve(0) ต้องโยน IllegalArgumentException การเขียนเทสต์ข้อใดถูกต้อง", o:["assertThrows(IllegalArgumentException.class, () -> svc.reserve(0));","assertThrows(IllegalArgumentException.class, svc.reserve(0));","svc.reserve(0); assertThrows(IllegalArgumentException.class);","assertEquals(IllegalArgumentException.class, svc.reserve(0));"], a:0, e:"ต้องส่ง \"งานที่จะทำ\" เป็น lambda ให้ assertThrows เรียกเอง ถ้าเรียก reserve(0) ก่อน exception จะเกิดก่อนเข้า assertThrows"},
+    {s:"t", q:"ชุดทดสอบเปิดแอปจริง กรอกข้อมูลผ่านหน้าจอ ยืนยันการสมัคร แล้วตรวจว่าเข้าสู่ระบบด้วยบัญชีใหม่ได้ เป็นการทดสอบระดับใด", o:["System / End-to-End test","Unit test","Static analysis","Mutation test"], a:0, e:"ทดสอบทั้งระบบตามเส้นทางของผู้ใช้จริง"},
+    {s:"t", q:"ชุดเทสต์ได้ line coverage 100% ข้อสรุปใดถูกต้อง", o:["ทุกบรรทัดถูกเรียกอย่างน้อยครั้งหนึ่ง แต่ยังอาจไม่ได้ตรวจผลที่ถูกต้องหรือกรณีที่ขาด","โปรแกรมไม่มีบั๊กแน่นอน","ทุก branch และทุก input ถูกทดสอบแล้ว","ไม่ต้องเขียนเทสต์เพิ่มอีก"], a:0, e:"coverage เป็นแผนที่หาช่องว่าง ไม่ใช่คะแนนรับประกัน"},
+    {s:"t", q:"ลำดับของ TDD คือข้อใด", o:["Red → Green → Refactor","Green → Red → Refactor","Refactor → Red → Green","Code → Test → Deploy"], a:0, e:"เขียนเทสต์ให้ล้มก่อน แล้วทำให้ผ่าน แล้วจึงปรับโค้ด"},
+    {s:"t", q:"เขียน unit test ให้ RegistrationService ที่ส่งอีเมลยืนยัน ไม่ต้องการให้ส่งอีเมลจริง และอยากตรวจว่าได้สั่งส่งอีเมลหนึ่งครั้ง ควรทำอย่างไร", o:["แทน EmailSender ด้วย mock แล้วใช้ verify ตรวจว่าถูกเรียก","ส่งอีเมลจริงไปที่อีเมลทดสอบ","ปิดการทดสอบเรื่องอีเมล","mock RegistrationService แทน"], a:0, e:"mock dependency ที่มีผลข้างเคียง ไม่ mock คลาสที่เรากำลังทดสอบเอง"},
+    {s:"ex", q:"โค้ดคอมไพล์ผ่านด้วย javac แล้ว ผู้พัฒนาบอกว่าไม่ต้องทดสอบอีก ข้อใดถูก", o:["ไม่ถูก compiler ตรวจไวยากรณ์และชนิด แต่ไม่ตรวจว่า logic ตรงกับข้อกำหนด","ถูก compiler ตรวจ logic ให้แล้ว","ถูก ถ้าไม่มี warning","ถูก ถ้าใช้ IDE"], a:0, e:"logical error คอมไพล์ผ่านได้เสมอ"},
+    {s:"ex", q:"ข้อกำหนด: countPositive ต้องนับเฉพาะเลข > 0 แต่โค้ดใช้ >= 0 input ใดทำให้เทสต์จับบั๊กได้", o:["[0, 5] คาดว่าได้ 1","[3, 5] คาดว่าได้ 2","[-1, -2] คาดว่าได้ 0","[] คาดว่าได้ 0"], a:0, e:"ต้องมี 0 ใน input จึงเห็นความต่างระหว่าง > กับ >="},
+    {s:"ex", q:"เทสต์ของคลาส Offer ผ่านบ้างพังบ้างขึ้นกับวันที่รัน เพราะเรียก LocalDate.now() ตรง ๆ วิธีแก้ที่ดีคือ", o:["ส่ง Clock เข้ามาแล้วใช้ LocalDate.now(clock) ในเทสต์ใช้ Clock คงที่","กด rerun จนกว่าจะผ่าน","ปิดเทสต์นี้","รันเทสต์เฉพาะวันจันทร์"], a:0, e:"flaky test ต้องหาสาเหตุความไม่แน่นอนแล้วควบคุมมัน"},
+    {s:"ex", q:"Black-box testing ต่างจาก White-box testing อย่างไร", o:["Black-box ออกแบบเทสต์จากข้อกำหนดโดยไม่ดูโค้ด ส่วน White-box ดูโครงสร้างโค้ดภายใน","Black-box ทดสอบเฉพาะ UI ส่วน White-box ทดสอบฐานข้อมูล","Black-box ทำมือ White-box ทำอัตโนมัติ","ไม่ต่างกัน"], a:0, e:"เป็นคนละมุมมองที่ใช้ร่วมกันได้"},
+    {s:"ex", q:"@BeforeEach ใน JUnit ใช้ทำอะไร", o:["เตรียม fixture ใหม่ก่อนทุกเมธอดทดสอบ ให้แต่ละเทสต์เริ่มจากสถานะสะอาด","รันครั้งเดียวก่อนทุกเทสต์ในคลาส","กำหนดลำดับให้เทสต์รันตามกัน","ข้ามเทสต์ที่ไม่ต้องการ"], a:0, e:"ครั้งเดียวก่อนทั้งคลาสคือ @BeforeAll"}
+  ]
+});
+
+</script>
+<script>
+const KEY = "oopfinal-v1";
+let store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { store = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+const L = "ABCDE";
+function seeded(seed) { let h = 7; for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return () => { h = (h * 1664525 + 1013904223) >>> 0; return h / 4294967296; }; }
+function ordFor(key, q) { const n = q.o.map((_, i) => i); const r = seeded(key); for (let i = n.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [n[i], n[j]] = [n[j], n[i]]; } return n; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const wrapTables = h => h.replace(/<table>/g, '<div class="tw"><table>').replace(/<\/table>/g, '</table></div>');
+const WT = { hi: "หลังกลางภาค · ออกเยอะ", lo: "ก่อนกลางภาค · ออกประปราย" };
+
+const PAGES = [{ id: "home", lec: "ภาพรวม", title: "แนวสอบ + ความคืบหน้า" }, { id: "mock", lec: "สอบรวม", title: "สุ่มทุกบท" }, ...TOPICS.map(t => ({ id: t.id, lec: t.lec, title: t.title, w: t.w }))];
+let cur = location.hash.slice(1) || "home";
+if (!PAGES.find(p => p.id === cur)) cur = "home";
+const filt = {};
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = PAGES.map(p => `<button class="tab${p.id === "mock" ? " x" : ""}${p.w === "hi" ? " hi" : ""}" role="tab" aria-selected="${p.id === cur}" data-id="${p.id}">${esc(p.lec)}<small>${esc(p.title)}</small></button>`).join("");
+  document.querySelectorAll(".tab").forEach(b => b.onclick = () => go(b.dataset.id));
+  const a = document.querySelector('.tab[aria-selected="true"]'); if (a) a.scrollIntoView({ block: "nearest", inline: "center" });
+}
+function go(id) { cur = id; try { history.replaceState(null, "", "#" + id); } catch (e) {} renderTabs(); render(); window.scrollTo(0, 0); }
+
+function globalMeter() {
+  let tot = 0, ok = 0, bad = 0;
+  TOPICS.forEach(t => { tot += t.quiz.length; const s = store[t.id] || {}; t.quiz.forEach((q, i) => { if (s[i] !== undefined) { s[i] === q.a ? ok++ : bad++; } }); });
+  const done = ok + bad, pct = Math.round(done / tot * 100);
+  document.getElementById("rfg").style.strokeDashoffset = 263.9 * (1 - done / tot);
+  document.getElementById("rpct").textContent = pct + "%";
+  document.getElementById("gtxt").innerHTML = `<span><b>${done}</b>/ ${tot} ข้อ</span><span><b>${ok}</b>ถูก</span><span><b>${done ? Math.round(ok / done * 100) : 0}%</b>ความแม่น</span>`;
+}
+
+function qCard(q, num, picked, key, order, tag) {
+  const ord = order || q.o.map((_, i) => i);
+  const done = picked !== undefined;
+  const opts = ord.map((oi, pos) => {
+    let cls = ""; if (done) { if (oi === q.a) cls = "right"; else if (oi === picked) cls = "wrong"; }
+    return `<button class="opt ${cls}" data-k="${key}" data-o="${oi}" ${done ? "disabled" : ""}><b>${L[pos]}</b><span>${esc(q.o[oi])}</span></button>`;
+  }).join("");
+  let exp = "";
+  if (done) { const okk = picked === q.a; exp = `<div class="exp"><strong class="${okk ? "ok" : "bad"}">${okk ? "ถูก" : "ผิด — ตอบ " + L[ord.indexOf(q.a)]}</strong> · ${esc(q.e)}</div>`; }
+  const badge = q.s === "t" ? `<span class="badge cw">อาจารย์ชี้</span>` : `<span class="badge ex">ฝึกเพิ่ม</span>`;
+  return `<div class="q"><div class="qh"><span class="qn">${num}</span><span class="qt">${esc(q.q)}</span>${badge}</div>${tag ? `<div class="qmeta">${esc(tag)}</div>` : ""}${q.c ? `<pre class="code">${esc(q.c)}</pre>` : ""}<div class="opts">${opts}</div>${exp}</div>`;
+}
+
+function renderHome(v) {
+  const cards = TOPICS.map(t => {
+    const s = store[t.id] || {}; const n = Object.keys(s).length; const ok = t.quiz.filter((q, i) => s[i] === q.a).length; const tc = t.quiz.filter(q => q.s === "t").length;
+    return `<a class="lc" href="#${t.id}" data-go="${t.id}"><span class="k">${esc(t.lec)}<span class="wtag ${t.w}">${t.w === "hi" ? "ออกเยอะ" : "ประปราย"}</span></span><h3>${esc(t.title)}</h3><p>อาจารย์ชี้ ${tc} + ฝึกเพิ่ม ${t.quiz.length - tc} ข้อ · ถูก ${ok}/${n}</p><div class="bar"><i class="g" style="width:${ok / t.quiz.length * 100}%"></i><i class="r" style="width:${(n - ok) / t.quiz.length * 100}%"></i></div></a>`;
+  }).join("");
+  const hi = TOPICS.filter(t => t.w === "hi"), lo = TOPICS.filter(t => t.w === "lo");
+  v.innerHTML = `<h2>ภาพรวม</h2><p class="sub">แต่ละบทมี "คำถามที่อาจารย์ชี้" (จากโน้ตเพื่อน + คลิปทบทวน) พร้อมคำตอบสั้น สรุปเนื้อหา และข้อสอบแนวเดียวกับ Practice Final ระบบจำคำตอบไว้ในเครื่องนี้</p>
+  <div class="kw">
+  <div><b>ขอบเขต</b> ออกตั้งแต่บทที่ 1 แต่ไม่เอาข้อ Midterm มาออกซ้ำ · บทก่อนกลางภาคออกประปราย · <mark>บทหลังกลางภาคออกเยอะกว่า</mark></div>
+  <div><b>ลำดับแนะนำ</b> อ่านกล่อง "อาจารย์ชี้" → อ่านสรุป → ทำข้อ "อาจารย์ชี้" → ทำข้อฝึกเพิ่ม → กรอง "ข้อที่ผิด" ทำซ้ำ → <a href="#mock" data-go="mock">สอบรวม</a></div>
+  <div><b>อาจารย์ย้ำในคลิป</b> GoF ถาม concept ไม่ให้เขียนโปรแกรม · Socket ถาม accept() และช่วง port · Stream ให้โค้ดแล้วถาม output · Abstract Factory = สร้าง object เป็นชุดที่เข้ากัน · UML เป็นทฤษฎี ดู lab</div>
+  <div><b>จุดที่ควรเช็คกับสไลด์</b> Composite (อาจารย์พูดว่าแตกแค่ 2 ทาง) · port (อาจารย์พูด 64 บิต สไลด์บอก 16 บิต) · StringBuilder (สไลด์หน้า 31 บอก thread-safe แต่จริง ๆ คือ StringBuffer)</div>
+  </div>
+  <h2 style="margin-top:28px">หลังกลางภาค <span class="wtag hi">ออกเยอะ</span></h2><p class="sub">${hi.length} หัวข้อ</p>
+  <div class="grid">${cards.split("</a>").filter(x => x).filter((_, i) => TOPICS[i].w === "hi").map(x => x + "</a>").join("")}</div>
+  <h2 style="margin-top:28px">ก่อนกลางภาค <span class="wtag lo">ประปราย</span></h2><p class="sub">${lo.length} หัวข้อ</p>
+  <div class="grid">${cards.split("</a>").filter(x => x).filter((_, i) => TOPICS[i].w === "lo").map(x => x + "</a>").join("")}</div>`;
+}
+
+function renderTopic(v, t) {
+  const s = store[t.id] || (store[t.id] = {});
+  const f = filt[t.id] || "all";
+  const idx = t.quiz.map((q, i) => i).filter(i => f === "all" || (f === "wrong" ? (s[i] !== undefined && s[i] !== t.quiz[i].a) : t.quiz[i].s === f));
+  const ok = t.quiz.filter((q, i) => s[i] === q.a).length, n = Object.keys(s).length;
+  const ch = (k, lab) => `<button class="chip" aria-pressed="${f === k}" data-f="${k}">${lab}</button>`;
+  v.innerHTML = `<h2>${esc(t.lec)} · ${esc(t.title)}</h2><p class="sub"><span class="wtag ${t.w}" style="margin-left:0">${WT[t.w]}</span> · ${t.quiz.length} ข้อ</p>
+  <details class="ask" open><summary>อาจารย์ชี้หัวข้อนี้ = ออกสอบ <small>${t.ask.length} ประเด็น</small></summary><div class="asklist">${t.ask.map(([q, a]) => `<div class="ak"><b>${q}</b><span>${a}</span></div>`).join("")}</div></details>
+  <details class="sum" open><summary>สรุปหัวข้อ</summary><div class="sumbody">${wrapTables(t.summary)}</div></details>
+  <div class="filters">${ch("all", "ทั้งหมด")}${ch("t", "อาจารย์ชี้")}${ch("ex", "ฝึกเพิ่ม")}${ch("wrong", "ข้อที่ผิด")}<button class="chip reset" id="rst">ล้างคำตอบบทนี้</button></div>
+  <p class="score">ถูก ${ok} จาก ${n} ข้อที่ทำ</p>
+  <div id="qs">${idx.length ? idx.map(i => qCard(t.quiz[i], i + 1, s[i], t.id + ":" + i, ordFor(t.id + ":" + i, t.quiz[i]))).join("") : `<p class="empty">${f === "wrong" ? "ยังไม่มีข้อที่ผิด" : "ไม่มีข้อในหมวดนี้"}</p>`}</div>`;
+  v.querySelectorAll(".chip[data-f]").forEach(b => b.onclick = () => { filt[t.id] = b.dataset.f; render(); });
+  v.querySelector("#rst").onclick = () => { if (confirm("ล้างคำตอบทั้งหมดของบทนี้?")) { store[t.id] = {}; save(); render(); } };
+  bindOpts(v, t);
+}
+function bindOpts(v, t) {
+  v.querySelectorAll(".opt:not([disabled])").forEach(b => {
+    b.onclick = () => {
+      const [tid, qi] = b.dataset.k.split(":"); store[tid][qi] = +b.dataset.o; save();
+      b.closest(".q").outerHTML = qCard(t.quiz[qi], +qi + 1, +b.dataset.o, b.dataset.k, ordFor(b.dataset.k, t.quiz[qi]));
+      bindOpts(v, t); updScore(v, t); globalMeter();
+    };
+  });
+}
+function updScore(v, t) { const s = store[t.id]; const ok = t.quiz.filter((q, i) => s[i] === q.a).length; v.querySelector(".score").textContent = `ถูก ${ok} จาก ${Object.keys(s).length} ข้อที่ทำ`; }
+
+let mock = null;
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function startMock(n) {
+  const hi = [], lo = [];
+  TOPICS.forEach(t => t.quiz.forEach(q => (t.w === "hi" ? hi : lo).push({ ...q, ref: t.lec + " · " + t.title })));
+  let pick;
+  if (n >= hi.length + lo.length) pick = shuffle([...hi, ...lo]);
+  else { const nh = Math.min(hi.length, Math.round(n * 0.75)); pick = shuffle([...shuffle(hi).slice(0, nh), ...shuffle(lo).slice(0, n - nh)]); }
+  mock = { n, qs: pick.map(q => ({ q, order: shuffle(q.o.map((_, i) => i)), p: undefined })) };
+  render();
+}
+function renderMock(v) {
+  let h = `<h2>สอบรวม</h2><p class="sub">สุ่มจากทุกบท เน้นหลังกลางภาค 75% ก่อนกลางภาค 25% และสลับตำแหน่งตัวเลือก ตอบแล้วเฉลยทันที</p><div class="mockbar">${[[30, "สุ่ม 30 ข้อ"], [60, "สุ่ม 60 ข้อ"], [9999, "ทุกข้อ"]].map(([n, l]) => `<button class="btn${mock && mock.n === n ? "" : " ghost"}" data-n="${n}">${l}</button>`).join("")}</div>`;
+  if (mock) {
+    const ans = mock.qs.filter(x => x.p !== undefined), ok = ans.filter(x => x.p === x.q.a).length;
+    h += `<div class="result"><div class="big">${ok}<span style="font-size:1.1rem">/${mock.qs.length}</span></div><div class="rb"><div>ตอบแล้ว ${ans.length} ข้อ${ans.length === mock.qs.length ? ` · ได้ ${Math.round(ok / mock.qs.length * 100)}%` : ""}</div><div class="bar"><i class="g" style="width:${ok / mock.qs.length * 100}%"></i><i class="r" style="width:${(ans.length - ok) / mock.qs.length * 100}%"></i></div></div></div>`;
+    h += mock.qs.map((x, i) => qCard(x.q, i + 1, x.p, "m:" + i, x.order, x.q.ref)).join("");
+  } else {
+    h += `<p class="empty">เลือกจำนวนข้อด้านบนเพื่อเริ่ม</p>`;
+  }
+  v.innerHTML = h;
+  v.querySelectorAll(".btn[data-n]").forEach(b => b.onclick = () => startMock(+b.dataset.n));
+  v.querySelectorAll(".opt:not([disabled])").forEach(b => b.onclick = () => { const i = +b.dataset.k.split(":")[1]; mock.qs[i].p = +b.dataset.o; const y = window.scrollY; render(); window.scrollTo(0, y); });
+}
+
+function render() {
+  const v = document.getElementById("view");
+  if (cur === "home") renderHome(v);
+  else if (cur === "mock") renderMock(v);
+  else renderTopic(v, TOPICS.find(t => t.id === cur));
+  v.querySelectorAll("[data-go]").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.go); });
+  globalMeter();
+}
+renderTabs(); render();
+
+</script>
+</body>
+</html>
