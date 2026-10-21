@@ -192,6 +192,26 @@ details.ask>summary small{font-weight:500;color:var(--muted);font-size:.78rem;fo
 .lc .wtag{margin:0 0 0 4px}
 .tab.hi small::after{content:" ●";color:var(--p2)}
 .tab[aria-selected="true"].hi small::after{color:#fff}
+.fcw{perspective:1400px;margin:0 0 14px}
+.fcc{display:grid;cursor:pointer;transition:transform .45s ease;transform-style:preserve-3d;-webkit-tap-highlight-color:transparent}
+.fcc.on{transform:rotateY(180deg)}
+.fcf{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px 20px;box-shadow:var(--sh);min-height:260px;display:flex;flex-direction:column;gap:10px}
+.fcf.bk{transform:rotateY(180deg);background:linear-gradient(135deg,color-mix(in srgb,var(--t) 10%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--t) 35%,var(--line))}
+.fcf .fk{font-size:.75rem;font-weight:700;color:var(--p);display:flex;justify-content:space-between;gap:8px}
+.fcf.bk .fk{color:var(--t)}
+.fcf .fq{font-size:1.1rem;font-weight:600;line-height:1.55;flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.fcf .fa{font-size:1.05rem;font-weight:600;color:var(--ink)}
+.fcf .fe{font-size:.9rem;font-weight:400;color:var(--muted)}
+.fcf .fh{font-size:.75rem;color:var(--muted);text-align:center}
+.fcf pre.code{margin:0}
+.fcnav{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.fcnav .btn{padding:9px 16px}
+.fcpos{font-size:.9rem;color:var(--muted);min-width:76px;text-align:center;font-variant-numeric:tabular-nums}
+.fcmark{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.fcmark button{font:inherit;font-weight:700;padding:11px;border-radius:14px;cursor:pointer;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.fcmark .no{border-color:var(--bad);color:var(--bad)} .fcmark .yes{border-color:var(--ok);color:var(--ok)}
+.fcmark .no[aria-pressed="true"]{background:var(--bad);color:#fff} .fcmark .yes[aria-pressed="true"]{background:var(--ok);color:#fff}
+@media (prefers-reduced-motion:reduce){.fcc{transition:none}}
 .qmeta{font-size:.72rem;color:var(--muted);margin:-6px 0 10px 42px}
 </style>
 </head>
@@ -1095,13 +1115,13 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;",
 const wrapTables = h => h.replace(/<table>/g, '<div class="tw"><table>').replace(/<\/table>/g, '</table></div>');
 const WT = { hi: "หลังกลางภาค · ออกเยอะ", lo: "ก่อนกลางภาค · ออกประปราย" };
 
-const PAGES = [{ id: "home", lec: "ภาพรวม", title: "แนวสอบ + ความคืบหน้า" }, { id: "mock", lec: "สอบรวม", title: "สุ่มทุกบท" }, { id: "pf", lec: "Practice Final", title: "120 ข้อ + เฉลย" }, ...TOPICS.map(t => ({ id: t.id, lec: t.lec, title: t.title, w: t.w }))];
+const PAGES = [{ id: "home", lec: "ภาพรวม", title: "แนวสอบ + ความคืบหน้า" }, { id: "mock", lec: "สอบรวม", title: "สุ่มทุกบท" }, { id: "pf", lec: "Practice Final", title: "120 ข้อ + เฉลย" }, { id: "fc", lec: "Flash Card", title: "ท่องจำ พลิกการ์ด" }, ...TOPICS.map(t => ({ id: t.id, lec: t.lec, title: t.title, w: t.w }))];
 let cur = location.hash.slice(1) || "home";
 if (!PAGES.find(p => p.id === cur)) cur = "home";
 const filt = {};
 
 function renderTabs() {
-  document.getElementById("tabs").innerHTML = PAGES.map(p => `<button class="tab${p.id === "mock" || p.id === "pf" ? " x" : ""}${p.w === "hi" ? " hi" : ""}" role="tab" aria-selected="${p.id === cur}" data-id="${p.id}">${esc(p.lec)}<small>${esc(p.title)}</small></button>`).join("");
+  document.getElementById("tabs").innerHTML = PAGES.map(p => `<button class="tab${p.id === "mock" || p.id === "pf" || p.id === "fc" ? " x" : ""}${p.w === "hi" ? " hi" : ""}" role="tab" aria-selected="${p.id === cur}" data-id="${p.id}">${esc(p.lec)}<small>${esc(p.title)}</small></button>`).join("");
   document.querySelectorAll(".tab").forEach(b => b.onclick = () => go(b.dataset.id));
   const a = document.querySelector('.tab[aria-selected="true"]'); if (a) a.scrollIntoView({ block: "nearest", inline: "center" });
 }
@@ -1140,6 +1160,7 @@ function renderHome(v) {
   <div class="kw">
   <div><b>ขอบเขต</b> ออกตั้งแต่บทที่ 1 แต่ไม่เอาข้อ Midterm มาออกซ้ำ · บทก่อนกลางภาคออกประปราย · <mark>บทหลังกลางภาคออกเยอะกว่า</mark></div>
   <div><b>Practice Final</b> ข้อสอบชุดฝึก 120 ข้อของอาจารย์พร้อมเฉลยและคำอธิบายอยู่ในแท็บ <a href="#pf" data-go="pf">Practice Final</a></div>
+  <div><b>Flash Card</b> ท่องประเด็นที่อาจารย์ชี้ ข้ออาจารย์ชี้ และ Practice Final แบบพลิกการ์ด ที่แท็บ <a href="#fc" data-go="fc">Flash Card</a></div>
   <div><b>ลำดับแนะนำ</b> อ่านกล่อง "อาจารย์ชี้" → อ่านสรุป → ทำข้อ "อาจารย์ชี้" → ทำข้อฝึกเพิ่ม → กรอง "ข้อที่ผิด" ทำซ้ำ → <a href="#mock" data-go="mock">สอบรวม</a></div>
   <div><b>ทำเฉพาะข้อที่อาจารย์ชี้</b> <button class="btn" id="onlyT">ทำเฉพาะข้ออาจารย์ชี้ทุกบท (${TC} ข้อ)</button> <button class="btn" id="allTPF">อาจารย์ชี้ + Practice Final (${TC + PF.length} ข้อ)</button></div>
   <div><b>อาจารย์ย้ำในคลิป</b> GoF ถาม concept ไม่ให้เขียนโปรแกรม · Socket ถาม accept() และช่วง port · Stream ให้โค้ดแล้วถาม output · Abstract Factory = สร้าง object เป็นชุดที่เข้ากัน · UML เป็นทฤษฎี ดู lab</div>
@@ -1202,6 +1223,66 @@ function bindPF(v) {
   });
 }
 
+const FCD = {
+  ask: { lab: "ประเด็นอาจารย์ชี้", build: () => TOPICS.flatMap(t => t.ask.map(([q, a], i) => ({ k: "a:" + t.id + ":" + i, ref: t.lec + " · " + t.title, f: q, b: a }))) },
+  t: { lab: "ข้ออาจารย์ชี้", build: () => TOPICS.flatMap(t => t.quiz.map((q, i) => [q, i]).filter(([q]) => q.s === "t").map(([q, i]) => ({ k: "t:" + t.id + ":" + i, ref: t.lec + " · " + t.title, q }))) },
+  pf: { lab: "Practice Final", build: () => PF.map((q, i) => ({ k: "p:" + i, ref: "Practice Final ข้อ " + q.n, q })) }
+};
+let fc = { deck: "ask", only: false, order: null, i: 0, flip: false };
+function fcCards() { const fk = store.fc || {}; const all = FCD[fc.deck].build(); return fc.only ? all.filter(c => !fk[c.k]) : all; }
+function fcReset() { fc.order = null; fc.i = 0; fc.flip = false; }
+function renderFC(v) {
+  const fk = store.fc || (store.fc = {});
+  const all = FCD[fc.deck].build(), known = all.filter(c => fk[c.k]).length;
+  let cards = fcCards();
+  if (!fc.order || fc.order.length !== cards.length) fc.order = cards.map((_, i) => i);
+  if (fc.i >= cards.length) fc.i = Math.max(0, cards.length - 1);
+  const ch = (k, lab, on, d) => `<button class="chip" aria-pressed="${on}" data-${d}="${k}">${lab}</button>`;
+  let h = `<h2>Flash Card</h2><p class="sub">แตะการ์ดเพื่อพลิกดูคำตอบ · คีย์บอร์ด: Space พลิก, ← → เปลี่ยนการ์ด · จำได้ ${known}/${all.length} ใบ</p>
+  <div class="filters">${Object.entries(FCD).map(([k, d]) => ch(k, `${d.lab} (${d.build().length})`, fc.deck === k, "d")).join("")}</div>
+  <div class="filters">${ch("0", "ทุกใบ", !fc.only, "o")}${ch("1", "เฉพาะที่ยังไม่จำ", fc.only, "o")}<button class="chip" id="fcsh">สลับลำดับ</button><button class="chip reset" id="fcrs">ล้างที่จำได้ชุดนี้</button></div>`;
+  if (!cards.length) { v.innerHTML = h + `<p class="empty">จำได้ครบทุกใบแล้ว 🎉</p>`; return fcBind(v, cards); }
+  const c = cards[fc.order[fc.i]];
+  let front, back;
+  if (c.q) {
+    front = `<span>${esc(c.q.q)}</span>${c.q.c ? `<pre class="code">${esc(c.q.c)}</pre>` : ""}`;
+    back = `<span class="fa">${esc(c.q.o[c.q.a])}</span><span class="fe">${esc(c.q.e)}</span>`;
+  } else { front = `<span>${c.f}</span>`; back = `<span class="fa">${c.b}</span>`; }
+  h += `<div class="fcw"><div class="fcc${fc.flip ? " on" : ""}" id="fcc" role="button" tabindex="0" aria-label="พลิกการ์ด">
+    <div class="fcf"><div class="fk"><span>${esc(c.ref)}</span><span>คำถาม</span></div><div class="fq">${front}</div><div class="fh">แตะเพื่อดูคำตอบ</div></div>
+    <div class="fcf bk"><div class="fk"><span>${esc(c.ref)}</span><span>คำตอบ</span></div><div class="fq">${back}</div><div class="fh">แตะเพื่อกลับไปดูคำถาม</div></div>
+  </div></div>
+  <div class="fcmark"><button class="no" id="fcno" aria-pressed="${fk[c.k] === 0}">ยังไม่จำ</button><button class="yes" id="fcyes" aria-pressed="${fk[c.k] === 1}">จำได้แล้ว</button></div>
+  <div class="fcnav"><button class="btn ghost" id="fcp" ${fc.i ? "" : "disabled"}>← ก่อนหน้า</button><span class="fcpos">${fc.i + 1} / ${cards.length}</span><button class="btn ghost" id="fcn" ${fc.i < cards.length - 1 ? "" : "disabled"}>ถัดไป →</button></div>`;
+  v.innerHTML = h; fcBind(v, cards, c);
+}
+function fcMove(d, n) { const j = fc.i + d; if (j < 0 || j >= n) return; fc.i = j; fc.flip = false; render(); }
+function fcFlip() { fc.flip = !fc.flip; const el = document.getElementById("fcc"); if (el) el.classList.toggle("on", fc.flip); }
+function fcMark(c, val, n) {
+  store.fc[c.k] = val; save();
+  if (fc.only && val) { fc.order = null; fc.flip = false; render(); return; }
+  if (fc.i < n - 1) fcMove(1, n); else render();
+}
+function fcBind(v, cards, c) {
+  v.querySelectorAll(".chip[data-d]").forEach(b => b.onclick = () => { fc.deck = b.dataset.d; fcReset(); render(); });
+  v.querySelectorAll(".chip[data-o]").forEach(b => b.onclick = () => { fc.only = b.dataset.o === "1"; fcReset(); render(); });
+  v.querySelector("#fcsh").onclick = () => { fc.order = shuffle(cards.map((_, i) => i)); fc.i = 0; fc.flip = false; render(); };
+  v.querySelector("#fcrs").onclick = () => { if (confirm("ล้างสถานะ \"จำได้\" ของชุดนี้?")) { FCD[fc.deck].build().forEach(x => delete store.fc[x.k]); save(); fcReset(); render(); } };
+  if (!c) return;
+  const card = v.querySelector("#fcc"); card.onclick = fcFlip;
+  v.querySelector("#fcp").onclick = () => fcMove(-1, cards.length);
+  v.querySelector("#fcn").onclick = () => fcMove(1, cards.length);
+  v.querySelector("#fcno").onclick = () => fcMark(c, 0, cards.length);
+  v.querySelector("#fcyes").onclick = () => fcMark(c, 1, cards.length);
+}
+document.addEventListener("keydown", e => {
+  if (cur !== "fc" || e.target.closest("input,textarea,select") || e.altKey || e.ctrlKey || e.metaKey) return;
+  const n = fcCards().length; if (!n) return;
+  if (e.key === " " || e.key === "Enter") { if (e.target.closest("button:not(#fcc)")) return; e.preventDefault(); fcFlip(); }
+  else if (e.key === "ArrowRight") fcMove(1, n);
+  else if (e.key === "ArrowLeft") fcMove(-1, n);
+});
+
 let mock = null;
 const TC = TOPICS.reduce((c, t) => c + t.quiz.filter(q => q.s === "t").length, 0);
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -1235,6 +1316,7 @@ function render() {
   if (cur === "home") renderHome(v);
   else if (cur === "mock") renderMock(v);
   else if (cur === "pf") renderPF(v);
+  else if (cur === "fc") renderFC(v);
   else renderTopic(v, TOPICS.find(t => t.id === cur));
   const ot = v.querySelector("#onlyT"); if (ot) ot.onclick = () => { go("mock"); startMock("t"); };
   const at = v.querySelector("#allTPF"); if (at) at.onclick = () => { go("mock"); startMock("tpf"); };
