@@ -200,6 +200,7 @@ details.ask>summary small{font-weight:500;color:var(--muted);font-size:.78rem;fo
 .fcf .fk{font-size:.75rem;font-weight:700;color:var(--p);display:flex;justify-content:space-between;gap:8px}
 .fcf.bk .fk{color:var(--t)}
 .fcf .fq{font-size:1.1rem;font-weight:600;line-height:1.55;flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.fcf .fq.term{font-size:1.45rem;text-align:center;align-items:center}
 .fcf .fa{font-size:1.05rem;font-weight:600;color:var(--ink)}
 .fcf .fe{font-size:.9rem;font-weight:400;color:var(--muted)}
 .fcf .fh{font-size:.75rem;color:var(--muted);text-align:center}
@@ -1163,7 +1164,7 @@ function renderHome(v) {
   <div class="kw">
   <div><b>ขอบเขต</b> ออกตั้งแต่บทที่ 1 แต่ไม่เอาข้อ Midterm มาออกซ้ำ · บทก่อนกลางภาคออกประปราย · <mark>บทหลังกลางภาคออกเยอะกว่า</mark></div>
   <div><b>Practice Final</b> ข้อสอบชุดฝึก 120 ข้อของอาจารย์พร้อมเฉลยและคำอธิบายอยู่ในแท็บ <a href="#pf" data-go="pf">Practice Final</a></div>
-  <div><b>Flash Card</b> ท่องประเด็นที่อาจารย์ชี้ ข้ออาจารย์ชี้ และ Practice Final แบบพลิกการ์ด ที่แท็บ <a href="#fc" data-go="fc">Flash Card</a></div>
+  <div><b>Flash Card</b> ท่องเนื้อหาแต่ละบทแบบพลิกการ์ด (คำ → ความหมาย) เลือกบทได้ มีชุดประเด็นอาจารย์ชี้ ข้ออาจารย์ชี้ และ Practice Final ด้วย ที่แท็บ <a href="#fc" data-go="fc">Flash Card</a></div>
   <div><b>ลำดับแนะนำ</b> อ่านกล่อง "อาจารย์ชี้" → อ่านสรุป → ทำข้อ "อาจารย์ชี้" → ทำข้อฝึกเพิ่ม → กรอง "ข้อที่ผิด" ทำซ้ำ → <a href="#mock" data-go="mock">สอบรวม</a></div>
   <div><b>ทำเฉพาะข้อที่อาจารย์ชี้</b> <button class="btn" id="onlyT">ทำเฉพาะข้ออาจารย์ชี้ทุกบท (${TC} ข้อ)</button> <button class="btn" id="allTPF">อาจารย์ชี้ + Practice Final (${TC + PF.length} ข้อ)</button></div>
   <div><b>อาจารย์ย้ำในคลิป</b> GoF ถาม concept ไม่ให้เขียนโปรแกรม · Socket ถาม accept() และช่วง port · Stream ให้โค้ดแล้วถาม output · Abstract Factory = สร้าง object เป็นชุดที่เข้ากัน · UML เป็นทฤษฎี ดู lab</div>
@@ -1184,10 +1185,11 @@ function renderTopic(v, t) {
   v.innerHTML = `<h2>${esc(t.lec)} · ${esc(t.title)}</h2><p class="sub"><span class="wtag ${t.w}" style="margin-left:0">${WT[t.w]}</span> · ${t.quiz.length} ข้อ</p>
   <details class="ask" open><summary>อาจารย์ชี้หัวข้อนี้ = ออกสอบ <small>${t.ask.length} ประเด็น</small></summary><div class="asklist">${t.ask.map(([q, a]) => `<div class="ak"><b>${q}</b><span>${a}</span></div>`).join("")}</div></details>
   <details class="sum" open><summary>สรุปหัวข้อ</summary><div class="sumbody">${wrapTables(t.summary)}</div></details>
-  <div class="filters">${ch("all", "ทั้งหมด")}${ch("t", "อาจารย์ชี้")}${ch("ex", "ฝึกเพิ่ม")}${ch("wrong", "ข้อที่ผิด")}<button class="chip reset" id="rst">ล้างคำตอบบทนี้</button></div>
+  <div class="filters">${ch("all", "ทั้งหมด")}${ch("t", "อาจารย์ชี้")}${ch("ex", "ฝึกเพิ่ม")}${ch("wrong", "ข้อที่ผิด")}<button class="chip" id="fcgo">Flash Card บทนี้ (${(FCC[t.id] || []).length})</button><button class="chip reset" id="rst">ล้างคำตอบบทนี้</button></div>
   <p class="score">ถูก ${ok} จาก ${n} ข้อที่ทำ</p>
   <div id="qs">${idx.length ? idx.map(i => qCard(t.quiz[i], i + 1, s[i], t.id + ":" + i, ordFor(t.id + ":" + i, t.quiz[i]))).join("") : `<p class="empty">${f === "wrong" ? "ยังไม่มีข้อที่ผิด" : "ไม่มีข้อในหมวดนี้"}</p>`}</div>`;
   v.querySelectorAll(".chip[data-f]").forEach(b => b.onclick = () => { filt[t.id] = b.dataset.f; render(); });
+  v.querySelector("#fcgo").onclick = () => { fc.deck = "con"; fc.topic = t.id; fcReset(); go("fc"); };
   v.querySelector("#rst").onclick = () => { if (confirm("ล้างคำตอบทั้งหมดของบทนี้?")) { store[t.id] = {}; save(); render(); } };
   bindOpts(v, t);
 }
@@ -1226,12 +1228,291 @@ function bindPF(v) {
   });
 }
 
+const FCC = {
+  l1: [
+    ["OOP (Object-Oriented Programming)", "แนวการเขียนโปรแกรมที่รวมข้อมูล (field) กับการทำงาน (method) ไว้ใน object เดียว เป็นหนึ่งใน programming paradigm ร่วมกับ Procedural, Functional, Scripting, Logic"],
+    ["Procedural (เช่นภาษา C)", "โปรแกรมแบ่งเป็นฟังก์ชัน ข้อมูล (struct) กับฟังก์ชันอยู่แยกกัน ไม่มี class/object จึงไม่มี encapsulation, inheritance, polymorphism ในตัวภาษา"],
+    ["DRY (Don't Repeat Yourself)", "หลักไม่เขียนโค้ดซ้ำ เป็นข้อดีของ OOP ทำให้ดูแล แก้ไข และ debug ง่ายขึ้น"],
+    ["ข้อดีของ OOP", "โครงสร้างโปรแกรมชัดเจน · โค้ด DRY · ดูแล/แก้ไข/debug ง่าย · reuse ได้ เขียนน้อยลง พัฒนาเร็วขึ้น"],
+    ["javac", "ตัวคอมไพเลอร์ของ Java แปลงไฟล์ .java ให้เป็นไฟล์ .class (bytecode)"],
+    ["Bytecode (.class)", "โค้ดกลางที่ได้จาก javac ไม่ผูกกับ CPU/OS ใด ๆ ให้ JVM นำไปรัน"],
+    ["JVM (Java Virtual Machine)", "ตัวรัน bytecode บนเครื่องนั้น ๆ ทำให้ Java รันได้ทุก OS ที่มี JVM"],
+    ["Platform independent (Write once, run anywhere)", "คอมไพล์ครั้งเดียวได้ bytecode แล้วเอาไปรันบนทุกระบบที่มี JVM ได้เลย"],
+    ["JDK vs JRE vs JVM", "JDK = ชุดพัฒนา (มี javac) ⊃ JRE = ชุดสำหรับรันโปรแกรม ⊃ JVM = ตัวรัน bytecode"],
+    ["กติกาชื่อไฟล์ Java", "ชื่อไฟล์ต้องตรงกับชื่อ public class ในไฟล์นั้น ไม่งั้นคอมไพล์ไม่ผ่าน"],
+    ["\"answer = \" + 3 + 4", "ได้ answer = 34 เพราะทำจากซ้ายไปขวา ต่อ String ไปก่อน ถ้าอยากได้ 7 ต้องเขียน \"answer = \" + (3 + 4)"]
+  ],
+  l2: [
+    ["break", "ออกจาก loop (หรือ switch) ชั้นในสุดที่มันอยู่ทันที"],
+    ["continue", "ข้ามคำสั่งที่เหลือของรอบนี้ แล้วไปเริ่มรอบถัดไป"],
+    ["Fall-through ใน switch", "ถ้า case ไหนไม่มี break โปรแกรมจะทำ case ถัดไปต่อเลยจนกว่าจะเจอ break"],
+    ["String เป็น reference", "ตัวแปร String เก็บที่อยู่ที่ชี้ไปยัง object ไม่ได้เก็บตัวข้อความเอง"],
+    ["== กับ equals() ของ String", "== เทียบว่าเป็น object เดียวกันไหม · equals() เทียบเนื้อหาข้อความ (ใช้ equals เวลาเทียบข้อความ)"],
+    ["String Immutability", "String สร้างแล้วแก้ไม่ได้ เมธอดอย่าง toUpperCase(), concat(), += จะสร้าง String ใหม่ ค่าเดิมไม่เปลี่ยน"],
+    ["substring(a, b)", "ตัดข้อความจากตำแหน่ง a ถึง b−1 เช่น \"Smith\".substring(1,3) = \"mi\" · charAt(i) เริ่มนับที่ 0"],
+    ["StringBuffer", "ข้อความที่แก้ใน object เดิมได้ (mutable) ประหยัดหน่วยความจำและเวลา · append() ต่อท้าย, insert(i,s) แทรก, delete(a,b) ลบ a ถึง b−1"],
+    ["StringBuffer vs StringBuilder", "เมธอดเหมือนกัน · StringBuffer synchronized (thread-safe) · StringBuilder ไม่ sync จึงเร็วกว่า (สไลด์หน้า 31 เขียนสลับ ระวัง)"],
+    ["Regular Expression (Regex)", "รูปแบบ (pattern) ไว้ตรวจหรือค้นหาข้อความ"],
+    ["[abc] / [^abc] / [0-9]", "ตัวอักษร 1 ตัวที่เป็น a, b หรือ c / ตัวที่ไม่ใช่ a, b, c / ตัวเลข 1 หลัก (เหมือน \\d)"],
+    ["n+ / n* / n?", "มี n อย่างน้อย 1 ตัว / 0 ตัวขึ้นไป / 0 หรือ 1 ตัว"],
+    ["n{x} / n{x,y} / n{x,}", "x ตัวพอดี / x ถึง y ตัว / อย่างน้อย x ตัว"],
+    ["^ / $ / |", "ต้นสตริง / ท้ายสตริง / หรือ เช่น cat|dog"],
+    ["s.matches(p)", "คืน true เมื่อทั้งสตริงตรงกับ pattern (ไม่ใช่แค่บางส่วน)"],
+    ["s.replaceAll(p, r)", "แทนทุกส่วนที่ตรงกับ pattern ด้วย r เช่น replaceAll(\"[aeiou]\", \"?\") แทนสระทุกตัว"]
+  ],
+  l3: [
+    ["Encapsulation (การห่อหุ้ม)", "รวม field (ข้อมูล) กับ method (การทำงาน) ไว้ด้วยกันในคลาสเดียว"],
+    ["Information hiding (การซ่อนข้อมูล)", "ซ่อนรายละเอียดภายใน ให้ field เป็น private แล้วให้ภายนอกใช้งานผ่านเมธอด (getter/setter)"],
+    ["Abstraction", "เลือกกำหนดเฉพาะคุณสมบัติที่จำเป็นต่อระบบ ตัดรายละเอียดที่ไม่เกี่ยวออก เช่น Student มี id, name ไม่ต้องมีเบอร์รองเท้า"],
+    ["Class", "แม่แบบ (พิมพ์เขียว) ที่บอกว่า object จะมี field และ method อะไร เช่น class Student"],
+    ["Object", "ตัวจริงที่สร้างจากคลาสด้วย new เช่น new Student()"],
+    ["Constructor", "เมธอดพิเศษชื่อเดียวกับคลาส ไม่มี return type (แม้แต่ void) ทำงานตอน new เพื่อกำหนดค่าเริ่มต้น overload ได้"],
+    ["this(...)", "เรียก constructor อีกตัวในคลาสเดียวกัน"],
+    ["this.price = price", "ใช้ this. เมื่อพารามิเตอร์ชื่อซ้ำกับ field ถ้าเขียนแค่ price = price จะกำหนดค่าให้พารามิเตอร์ตัวเอง field ไม่เปลี่ยน"],
+    ["Method overloading", "เมธอดชื่อเดียวกันแต่ parameter list ต่างกัน (จำนวน/ชนิด/ลำดับ) · ต่างแค่ return type อย่างเดียวคอมไพล์ไม่ผ่าน"],
+    ["static", "เป็นของคลาส มีชุดเดียวใช้ร่วมกันทุก object เรียกผ่านชื่อคลาสได้โดยไม่ต้องสร้าง object เช่น Math.max(a, b)"],
+    ["ข้อจำกัดของ static method", "อ้าง instance field ตรง ๆ ไม่ได้ เพราะไม่รู้ว่าเป็นของ object ไหน"],
+    ["final", "ตัวแปร = กำหนดค่าได้ครั้งเดียว (ค่าคงที่) · เมธอด = ห้าม override · คลาส = ห้าม extends"],
+    ["public", "เข้าถึงได้จากทุกที่"],
+    ["protected", "เข้าถึงได้จากคลาสเดียวกัน, package เดียวกัน และคลาสลูกแม้อยู่ต่าง package"],
+    ["default (ไม่ใส่ modifier)", "package-private: เข้าถึงได้เฉพาะคลาสใน package เดียวกัน"],
+    ["private", "เข้าถึงได้เฉพาะในคลาสตัวเองเท่านั้น"],
+    ["Package", "กลุ่มของคลาสที่เกี่ยวข้องกัน ใช้คู่กับระดับการเข้าถึงแบบ default"]
+  ],
+  l4: [
+    ["Inheritance (การสืบทอด)", "คลาสลูก extends คลาสแม่ แล้วได้ field/method ของแม่มาใช้ซ้ำ เพิ่มหรือปรับเฉพาะส่วนที่ต่างได้"],
+    ["Single inheritance", "Java ให้คลาสหนึ่ง extends ได้แค่คลาสเดียว (แต่ implements ได้หลาย interface)"],
+    ["super(...)", "constructor ของคลาสลูกจะเรียก constructor ของแม่ก่อนเสมอ ถ้าไม่เขียน Java ใส่ super() ให้เอง"],
+    ["คลาส Object", "คลาสบนสุด (ราก) ของทุกคลาสใน Java ทุก object จึงมี toString(), equals(), hashCode(), getClass()"],
+    ["toString()", "คืนข้อความแทน object ถูกเรียกอัตโนมัติตอน println(obj) ถ้าไม่ override จะได้แบบ ชื่อคลาส@hash เช่น Badge@1b6d3586"],
+    ["Polymorphism (หลายรูปแบบ)", "เรียกเมธอดชื่อเดียวกันผ่านตัวแปรชนิดแม่ แต่ทำงานต่างกันตามชนิด object จริง"],
+    ["Dynamic binding", "Java เลือกว่าจะเรียกเมธอดของคลาสไหนตามชนิด object จริงตอนรัน เช่น Animal a = new Dog(); a.sound() เรียกของ Dog"],
+    ["Overriding", "คลาสลูกเขียนทับเมธอดของแม่ ใช้ชื่อและ parameter เหมือนเดิม ตัดสินตอนรัน"],
+    ["Overloading vs Overriding", "Overloading = คลาสเดียวกัน parameter ต่าง ตัดสินตอนคอมไพล์ · Overriding = ลูกเขียนทับแม่ parameter เหมือนเดิม ตัดสินตอนรัน"],
+    ["@Override", "ให้ compiler ตรวจว่าเป็นการ override จริง ถ้า signature ไม่ตรงกับของแม่จะคอมไพล์ไม่ผ่าน"]
+  ],
+  l5: [
+    ["Interface", "สัญญา (contract) บอกว่าคลาสต้องมีเมธอดอะไร แต่ไม่บอกว่าทำอย่างไร"],
+    ["implements", "คลาสใช้ implements เพื่อทำตาม interface ต้องเขียนเมธอดครบ และ implements ได้หลาย interface คั่นด้วยจุลภาค"],
+    ["interface สืบทอด interface", "ใช้ extends เช่น interface Shape extends Drawable"],
+    ["เมธอดใน interface", "เป็น public abstract โดยปริยาย"],
+    ["field ใน interface", "เป็น public static final (ค่าคงที่) โดยปริยาย"],
+    ["default method", "เมธอดใน interface ที่มีโค้ดอยู่แล้ว (Java 8+) คลาสที่ implements ไม่ต้องเขียนเอง"],
+    ["Concrete class ที่ implements", "ต้องเขียน abstract method ครบทุกตัว ไม่งั้นคอมไพล์ไม่ผ่าน หรือต้องประกาศเป็น abstract class"],
+    ["Abstract class", "คลาสที่สร้าง object ตรง ๆ ไม่ได้ (new Shape() ✗) แต่มี field, constructor และเมธอดปกติได้ ลูก extends ได้ตัวเดียว"],
+    ["Interface vs Abstract class", "Interface: implements ได้หลายตัว, field เป็นค่าคงที่, ไม่มี constructor, บอก \"ทำอะไรได้\" · Abstract class: extends ได้ตัวเดียว, มี state และ constructor ได้, แชร์โค้ดของตระกูลเดียวกัน"],
+    ["Enum", "ชนิดข้อมูลที่มีชุดค่าคงที่จำกัด เช่น enum Direction { NORTH, SOUTH, EAST, WEST } compiler กันค่าอื่นให้"]
+  ],
+  l6: [
+    ["Generics", "เขียนคลาส/เมธอดครั้งเดียว ใช้ได้กับหลายชนิดข้อมูล โดยกำหนดชนิดตอนใช้งาน"],
+    ["List<T> — T คืออะไร", "T คือ Type parameter แทนชนิดข้อมูลที่จะกำหนดตอนใช้ เช่น List<String>"],
+    ["ประโยชน์ของ Generics", "1) ตรวจชนิดข้อมูลตั้งแต่ตอนคอมไพล์ ใส่ผิดชนิดคอมไพล์ไม่ผ่าน 2) ไม่ต้อง cast ตอนดึงค่าออก"],
+    ["T / E / K, V", "ตัวย่อที่ใช้บ่อย: T = Type · E = Element · K, V = Key/Value"],
+    ["Generic class", "class Box<T> { T value; } แล้วใช้ Box<String> ทำให้ value เป็น String"],
+    ["Generic method", "ประกาศ <T> หน้า return type เช่น static <T> T last(List<T> list) ชนิดที่คืนตรงกับชนิดสมาชิกของ list"],
+    ["List<int> ได้ไหม", "ไม่ได้ Generics ใช้ primitive ไม่ได้ ต้องใช้ wrapper class เช่น List<Integer>"],
+    ["List<Integer> กับ List<Number>", "List<Integer> ไม่ใช่ List<Number> แม้ Integer เป็นลูกของ Number (ไม่งั้นจะ add 2.5 ลง list ของ Integer ได้)"],
+    ["Wildcard ? extends / ? super", "List<? extends Number> อ่านค่าเป็น Number ได้ · List<? super Integer> ใส่ Integer ลงไปได้"]
+  ],
+  l7: [
+    ["List", "เก็บตามลำดับที่ใส่ เก็บค่าซ้ำได้ เข้าถึงด้วย index เช่น ArrayList, LinkedList"],
+    ["Set", "ไม่เก็บค่าซ้ำ เช่น HashSet (ไม่รับประกันลำดับ), TreeSet (เรียงลำดับ)"],
+    ["Map", "เก็บเป็นคู่ key → value โดย key ห้ามซ้ำ (put key เดิม = ทับค่าเดิม) เช่น HashMap, TreeMap"],
+    ["ArrayList", "List ที่ใช้ array ภายใน ขยายขนาดเองอัตโนมัติ"],
+    ["เมธอดของ ArrayList", "add(x) ต่อท้าย · add(i, x) แทรก · get(i) · set(i, x) แทนที่ · size() · contains(x)"],
+    ["remove(int) vs remove(Object)", "ใน List<Integer> list.remove(12) คือลบตำแหน่งที่ 12 ถ้าจะลบค่า 12 ใช้ list.remove(Integer.valueOf(12))"],
+    ["set.add(x) คืนอะไร", "true ถ้าเพิ่มได้ · false ถ้ามีค่านั้นอยู่แล้ว"],
+    ["map.get / getOrDefault", "get(k) คืน null ถ้าไม่มี key · getOrDefault(k, 0) คืน 0 แทน ใช้นับจำนวน counts.put(k, counts.getOrDefault(k, 0) + 1)"],
+    ["equals() + hashCode()", "HashSet/HashMap ใช้ทั้งคู่ตัดสินว่าซ้ำไหม ถ้า override equals ต้อง override hashCode ด้วย"],
+    ["Collections.sort(list)", "เรียงลำดับสมาชิกใน list"]
+  ],
+  l8s: [
+    ["SOLID", "หลักออกแบบคลาส 5 ข้อ: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion"],
+    ["S — Single Responsibility", "คลาสหนึ่งควรมีเหตุผลให้เปลี่ยนเพียงเรื่องเดียว · ผิดเมื่อคลาสเดียวทำทั้งกฎธุรกิจ บันทึกไฟล์ และแสดงผล"],
+    ["O — Open/Closed", "เปิดให้ขยาย ปิดไม่ให้แก้ เพิ่มของใหม่โดยไม่แก้โค้ดเดิม · ผิดเมื่อเพิ่มชนิดใหม่ทีไรต้องแก้ if/switch เดิม"],
+    ["L — Liskov Substitution", "เอาคลาสลูกไปแทนคลาสแม่ได้โดยไม่ผิดสัญญา · ผิดเมื่อลูก throw ในกรณีที่แม่บอกว่ารองรับ"],
+    ["I — Interface Segregation", "อย่าบังคับให้ใช้ interface ใหญ่ที่มีเมธอดที่ไม่ได้ใช้ ให้แยกเป็น interface เล็ก ๆ"],
+    ["D — Dependency Inversion", "พึ่งพา abstraction (interface) ไม่ใช่คลาสจริง · ผิดเมื่อ Service รับ SqlMemberStore ตรง ๆ"],
+    ["Dependency Inversion vs Dependency Injection", "Inversion = หลักการพึ่ง interface · Injection = เทคนิคส่ง dependency เข้ามา (เช่นผ่าน constructor) inject คลาสจริงเข้ามาก็ยังไม่ครบ DIP"]
+  ],
+  l8e: [
+    ["Syntax error", "ผิดไวยากรณ์ เจอตอนคอมไพล์ เช่น ลืม ; สะกด keyword ผิด"],
+    ["Logical error", "โปรแกรมรันได้แต่ผลผิด ไม่มีใครแจ้งเตือน เช่น int overflow, หาร int ได้ 2 แทน 2.5, ใช้ >= แทน >"],
+    ["Exception", "ความผิดปกติที่เกิดตอนรัน เช่น หารด้วย 0, เปิดไฟล์ไม่เจอ, index เกิน"],
+    ["Unchecked exception", "อยู่ใต้ RuntimeException ไม่บังคับ try-catch ป้องกันได้ด้วยโค้ด เช่น ArithmeticException, NullPointerException, ArrayIndexOutOfBounds, NumberFormatException"],
+    ["Checked exception", "Exception อื่นที่ไม่อยู่ใต้ RuntimeException บังคับ catch หรือ throws เกิดจากปัจจัยภายนอก เช่น IOException, FileNotFoundException"],
+    ["try-catch", "เมื่อเกิด exception ใน try คำสั่งที่เหลือใน try ถูกข้าม แล้วกระโดดไป catch ที่ตรงชนิด"],
+    ["ลำดับหลาย catch", "เรียงจากชนิดเฉพาะไปกว้าง (ลูกก่อนแม่) ถ้าใส่ Exception ไว้ก่อนจะคอมไพล์ไม่ผ่าน (unreachable)"],
+    ["finally", "ทำงานเสมอไม่ว่าจะเกิด exception หรือไม่ ใช้ปิดไฟล์/คืนทรัพยากร"],
+    ["throw vs throws", "throw = โยน exception ออกไปจริง · throws = ประกาศที่หัวเมธอดว่าอาจโยน checked exception"],
+    ["getMessage() / printStackTrace()", "ดูข้อความของ exception / พิมพ์เส้นทางการเรียกที่ทำให้เกิด exception"]
+  ],
+  l9: [
+    ["Swing", "ชุดคลาส GUI ของ Java (javax.swing + java.awt) คลาสหลักขึ้นต้นด้วย J"],
+    ["JFrame", "หน้าต่างหลัก ต้อง setVisible(true) และใส่ component ลง content pane"],
+    ["JPanel", "กล่องจัดกลุ่ม component ซ้อนกันได้ (nesting panels)"],
+    ["JLabel / JButton", "แสดงข้อความหรือรูป / ปุ่มกด"],
+    ["JTextField / JTextArea", "ช่องพิมพ์บรรทัดเดียว / หลายบรรทัด (ใส่ JScrollPane เพื่อมี scroll bar)"],
+    ["JCheckBox / JRadioButton", "เลือกได้หลายอัน / เลือกได้อันเดียวเมื่ออยู่ใน ButtonGroup เดียวกัน"],
+    ["JOptionPane", "กล่องโต้ตอบสำเร็จรูป: message, confirm (Yes/No/Cancel), input"],
+    ["JMenuBar → JMenu → JMenuItem", "แถบเมนู (frame ละ 1) → หัวข้อเมนู เช่น File → คำสั่งย่อย เช่น Open แล้ว frame.setJMenuBar(bar)"],
+    ["Layout Manager", "ตัวจัดตำแหน่งและขนาดของ component ในหน้าต่าง"],
+    ["FlowLayout", "วางซ้าย→ขวาตามลำดับ add ล้นบรรทัดก็ขึ้นบรรทัดใหม่ ปุ่มขนาดพอดีข้อความ"],
+    ["BorderLayout", "แบ่ง 5 พื้นที่ North/South/East/West/Center · Center ขยายตามหน้าต่าง"],
+    ["GridLayout(r, c)", "ตาราง r × c ช่องขนาดเท่ากัน วางซ้าย→ขวา บน→ล่าง"],
+    ["null layout", "ไม่ใช้ layout manager กำหนดตำแหน่งเองด้วย setBounds"],
+    ["Event handling", "event source (เช่นปุ่ม) สร้าง event → listener ที่ลงทะเบียนไว้รับไปทำงาน"],
+    ["ActionListener", "interface ที่ต้องเขียน actionPerformed(ActionEvent e) แล้วลงทะเบียนด้วย button.addActionListener(handler)"]
+  ],
+  g1: [
+    ["Design Pattern (GoF)", "แนวทางแก้ปัญหาการออกแบบที่เจอบ่อย มี 3 กลุ่ม: Creational 5, Structural 7, Behavioral 11 (ข้อสอบถาม concept)"],
+    ["Creational pattern", "กลุ่มที่สนใจวิธีสร้าง object"],
+    ["Factory Method", "สร้าง object ทีละตัวผ่านเมธอดที่คลาสลูกเลือกได้ว่าจะสร้างชนิดไหน เช่น createParser() → JsonParser / XmlParser"],
+    ["Abstract Factory", "สร้าง object เป็นชุด (family) ที่เข้ากัน เช่น ชุดเฟอร์นิเจอร์ Art Deco / Victorian"],
+    ["Builder", "สร้าง object ที่ซับซ้อนทีละขั้น เช่น หุ่นยนต์: ลูกกลม → เหลาเป็นสี่เหลี่ยม → ติดแขนขา"],
+    ["Prototype", "สร้าง object ใหม่ด้วยการ copy (clone) จากต้นแบบ"],
+    ["Singleton", "มี object ของคลาสนั้นแค่ตัวเดียวแล้ว reuse เช่น DB connection ที่ทุกหน้าจอใช้ร่วมกัน"],
+    ["Singleton ที่ถูกต้อง", "private constructor + private static field เก็บ instance + public static getInstance() คืนตัวเดิมทุกครั้ง"],
+    ["Deep copy", "สร้าง object ใหม่จริงรวมถึงข้อมูลข้างใน แก้ตัวหนึ่งอีกตัวไม่เปลี่ยน"],
+    ["Shallow copy", "คัดลอกแค่ reference ข้อมูลข้างในยังชี้ที่เดียวกัน แก้ตัวหนึ่งอีกตัวเปลี่ยนตาม · super.clone() ตั้งต้นเป็น shallow"]
+  ],
+  g2: [
+    ["Structural pattern", "กลุ่มที่สนใจโครงสร้าง/การประกอบคลาสและ object"],
+    ["Adapter", "แปลงสิ่งที่มีให้เข้ากับสิ่งที่ต้องการ เช่น XML → JSON, เซนเซอร์มี readFahrenheit แต่ระบบต้องการ readCelsius"],
+    ["Bridge", "แยก 2 มิติที่เปลี่ยนแปลงอิสระออกจากกัน แล้วเชื่อมผ่านสะพาน เช่น ทีวีหลายยี่ห้อ × รีโมทหลายแบบ"],
+    ["Composite", "โครงสร้างแบบต้นไม้ ตัวเดี่ยว (leaf) กับกลุ่ม (composite) ใช้ interface เดียวกัน เช่น Playlist มีทั้ง Clip และ Playlist ย่อย"],
+    ["Decorator", "ห่อเพิ่มความสามารถทีละชั้นโดยไม่แก้คลาสเดิม ซ้อนได้หลายชั้น เช่น กาแฟ + นม + ช็อต"],
+    ["Facade", "ประตูหน้าที่ใช้ง่าย ซ่อนระบบย่อยที่ซับซ้อน เช่น placeOrder() เรียก stock, payment, shipping ให้"],
+    ["Flyweight", "แชร์ส่วนที่ซ้ำกันเพื่อลดหน่วยความจำ เช่น ต้นไม้ในเกม: รูปร่างแชร์กัน ตำแหน่งแยกกัน"],
+    ["Proxy", "ตัวแทนที่คุมการเข้าถึงตัวจริง (cache, lazy load, ตรวจสิทธิ์) เช่น proxy อินเทอร์เน็ต"],
+    ["Decorator vs Proxy", "interface เหมือนกันทั้งคู่ · Decorator เพิ่มความสามารถ ซ้อนหลายชั้นได้ · Proxy ควบคุมการเข้าถึงตัวจริง"],
+    ["Adapter vs Facade", "Adapter แปลง interface ให้ตรงกับที่ต้องการ · Facade สร้าง interface ใหม่ที่ง่ายกว่าครอบระบบย่อยหลายตัว"],
+    ["Flyweight vs Singleton", "Singleton มีตัวเดียว · Flyweight มีหลายตัวที่แชร์ส่วนซ้ำกัน (อาจารย์: คล้ายแต่ไม่ใช่ซะทีเดียว)"]
+  ],
+  g3: [
+    ["Behavioral pattern", "กลุ่มที่สนใจพฤติกรรมและการสื่อสารระหว่าง object"],
+    ["Chain of Responsibility", "ส่งคำขอผ่านสายโซ่ของ handler ไปเรื่อย ๆ จนมีคนรับ เช่น call center, อนุมัติตามวงเงิน"],
+    ["Command", "ห่อการกระทำเป็น object ผูกกับ UI ได้หลายจุด ทำ undo/queue ได้ เช่น Copy จากปุ่ม/Ctrl+C/เมนู"],
+    ["Interpreter", "สร้างภาษาเล็ก ๆ สำหรับกฎเฉพาะ เช่น ตัวแปลนิพจน์ (อาจารย์ไม่ได้พูด)"],
+    ["Iterator", "วนผ่านสมาชิกทีละตัวโดยไม่เปิดเผยโครงสร้างภายใน เช่น for-each, DFS/BFS"],
+    ["Mediator", "ให้ object คุยกันผ่านตัวกลางแทนคุยกันตรง ๆ เช่น หอบังคับการบิน, ห้องแชท"],
+    ["Memento", "เก็บสถานะไว้เพื่อย้อนกลับ (undo) โดยไม่เปิดข้อมูลภายใน เช่น save game"],
+    ["Observer", "ผู้ติดตาม subscribe ไว้ แล้วถูกแจ้งเมื่อมีเหตุการณ์ เช่น จดหมายข่าว, event listener"],
+    ["State", "พฤติกรรมเปลี่ยนตามสถานะภายใน object เปลี่ยนสถานะเองตามลำดับ เช่น เครื่องซักผ้า: เลือกโหมด → หยอดเหรียญ → Start"],
+    ["Strategy", "สลับอัลกอริทึมได้ผ่าน interface เดียว เลือกตอนรัน เช่น วิธีเดินทาง"],
+    ["Template Method", "คลาสแม่ล็อกโครงขั้นตอนไว้ คลาสลูกเติมบางขั้น เช่น อ่านไฟล์ → parse → analysis"],
+    ["Visitor", "เพิ่ม operation ใหม่ให้โครงสร้างที่คงที่โดยไม่แก้คลาสเดิม เช่น คำนวณส่วนลดหลายแบบ"],
+    ["Strategy vs State", "Strategy ผู้ใช้เลือกวิธีเอง · State object เปลี่ยนสถานะเองตามเหตุการณ์"],
+    ["Observer vs Mediator", "Observer กระจายข่าวทางเดียวให้ผู้ติดตาม · Mediator เป็นศูนย์กลางประสานหลาย object ที่คุยกันไปมา"],
+    ["Command vs Memento (undo)", "Command เก็บการกระทำ · Memento เก็บสถานะ"]
+  ],
+  t1: [
+    ["Thread", "ลำดับคำสั่งหนึ่งสายที่ทำงานในโปรแกรม"],
+    ["Multitasking vs Multiprocessing", "Multitasking = CPU ตัวเดียวสลับทำหลายงาน (time-sharing) · Multiprocessing = มีหลาย CPU ทำพร้อมกันจริง"],
+    ["สร้าง thread 2 วิธี", "1) extends Thread แล้ว override run() 2) implements Runnable แล้วส่งให้ new Thread(r) (ดีกว่า เพราะยัง extends คลาสอื่นได้)"],
+    ["start() vs run()", "start() สร้าง thread ใหม่แล้วเรียก run() ให้ · เรียก run() ตรง ๆ = ทำใน thread ปัจจุบัน ไม่มี thread ใหม่"],
+    ["สถานะของ thread", "New → Runnable → Running → Blocked → Dead"],
+    ["New / Runnable / Running", "สร้างแล้วยังไม่ start() / พร้อมทำงานรอ scheduler เลือก / กำลังใช้ CPU"],
+    ["Blocked / Dead", "รอบางอย่าง เช่น sleep(), IO, lock, wait() / run() จบ หรือเกิด exception ที่ไม่ได้จัดการ"],
+    ["Preemptive vs Non-preemptive", "Preemptive = ถูกแย่ง CPU ได้เมื่อหมดเวลาหรือมี priority สูงกว่า · Non-preemptive = thread ทำจนหยุดเอง"],
+    ["Race condition", "หลาย thread แก้ตัวแปรเดียวกันพร้อมกัน (เช่น count++) ทำให้ผลผิด"],
+    ["synchronized", "ให้ทีละ thread เข้าทำงานส่วนนั้น โดยต้องใช้ lock ตัวเดียวกัน (synchronized(new Object()) ไม่ช่วย)"],
+    ["join()", "รอให้ thread อื่นทำงานจบก่อนแล้วค่อยทำต่อ"],
+    ["sleep() vs wait()/notify()", "sleep() หยุดชั่วคราว ถ้าอยู่ใน synchronized จะไม่ปล่อย lock · wait()/notify() ใช้ประสานงานระหว่าง thread"],
+    ["Deadlock", "สองงานต่างถือ lock แล้วรอ lock ของอีกฝ่าย ค้างกันทั้งคู่ · แก้โดยขอ lock ตามลำดับเดียวกันเสมอ"]
+  ],
+  t2: [
+    ["Socket", "จุดปลายทางของการเชื่อมต่อเครือข่าย ใช้ส่ง/รับข้อมูลระหว่างโปรแกรม"],
+    ["IP address", "ระบุเครื่องในเครือข่าย"],
+    ["Port", "ระบุโปรแกรมบนเครื่อง เป็นจำนวนเต็มบวก 16 บิต (0–65,535) · 0–1024 สงวนไว้ให้บริการระบบ"],
+    ["TCP", "connection-oriented รับประกันว่าข้อมูลถึงครบและตามลำดับ"],
+    ["UDP", "ส่งเป็น datagram แยกกัน ไม่รับประกันว่าถึงหรือตามลำดับ"],
+    ["ServerSocket", "ฝั่ง server เปิดรอที่ port เช่น new ServerSocket(8000)"],
+    ["accept()", "หยุดรอจนมี client ต่อเข้ามา แล้วคืน Socket ใหม่สำหรับคุยกับ client นั้น"],
+    ["ฝั่ง Client", "Socket s = new Socket(\"localhost\", 8000); ต่อไปยัง server"],
+    ["อ่าน/เขียนผ่าน socket", "BufferedReader + InputStreamReader(s.getInputStream()) ใช้อ่าน · PrintWriter(s.getOutputStream(), true) ใช้เขียน · readLine() รอจนได้หนึ่งบรรทัด"],
+    ["รองรับหลาย client", "วนลูป accept() แล้วสร้าง thread ใหม่ต่อ client เพื่อให้ server กลับไปรอ client รายต่อไปได้"],
+    ["InetAddress", "getByName(\"host\") แปลงชื่อเป็น IP ผ่าน DNS · getLocalHost() ได้เครื่องตัวเอง"],
+    ["localhost / 127.0.0.1", "หมายถึงเครื่องตัวเอง ถ้าจะต่อจากเครื่องอื่นต้องใช้ IP จริงของ server"]
+  ],
+  f1: [
+    ["Lambda", "ฟังก์ชันสั้น ๆ ไม่มีชื่อ เช่น (a, b) -> a + b · x -> x * 2"],
+    ["Method reference", "อ้างเมธอดที่มีอยู่แล้วแทนการเขียน lambda เช่น String::length"],
+    ["Functional interface", "interface ที่มี abstract method ตัวเดียว ใช้กับ lambda ได้"],
+    ["Function<T,R>", "รับ T คืน R ด้วย apply() ต่อกันได้ด้วย andThen"],
+    ["Predicate<T>", "รับ T คืน boolean ด้วย test() ใช้ใน filter"],
+    ["Consumer<T>", "รับ T ไม่คืนค่า ด้วย accept() ใช้ใน forEach"],
+    ["Supplier<T>", "ไม่รับอะไร คืน T ด้วย get()"],
+    ["BiFunction / BinaryOperator", "รับ 2 ค่า (T,U) คืน R ด้วย apply() ใช้ใน reduce"],
+    ["Stream pipeline", "แหล่งข้อมูล → intermediate operation → terminal operation"],
+    ["Intermediate operation", "คืน stream ใหม่ และ lazy (ยังไม่ทำจนกว่าจะมี terminal) เช่น filter, map, flatMap, distinct, sorted, limit, skip"],
+    ["Terminal operation", "ให้ผลลัพธ์จริงและปิด stream เช่น collect/toList, count, reduce, forEach, anyMatch, min/max"],
+    ["filter / map / flatMap", "กรองตามเงื่อนไข / แปลงทีละตัว / แตก stream ซ้อนให้แบน"],
+    ["reduce(identity, op)", "ยุบทุกตัวเหลือค่าเดียว ต้องเลือกค่าเริ่มต้นให้ถูก: ผลรวมใช้ 0 · ผลคูณใช้ 1"],
+    ["Effectively final", "ตัวแปรที่ lambda อ้างถึงห้ามกำหนดค่าใหม่ แต่เรียกเมธอดแก้ข้างใน object ได้ เช่น names.add(x)"]
+  ],
+  o1: [
+    ["Requirement", "สิ่งที่ระบบต้องทำหรือต้องเป็น ที่ได้จากความต้องการของผู้ใช้"],
+    ["Functional requirement (FR)", "ระบบต้องทำอะไร เช่น ผู้ใช้จองที่นั่งได้, ระบบออกใบเสร็จ"],
+    ["Non-functional requirement (NFR)", "ระบบต้องดีแค่ไหน (คุณภาพ) เช่น ตอบสนองภายใน 2 วินาที, รองรับ 1,000 คนพร้อมกัน, ปลอดภัย"],
+    ["Requirement ที่ดี", "ชัดเจน วัดผลได้ ทดสอบได้ ไม่กำกวม · \"ต้องเร็ว\" ใช้ไม่ได้ ต้องเขียนเช่น \"แสดงผลภายใน 2 วินาทีเมื่อมีผู้ใช้ 500 คน\""],
+    ["Use Case Diagram", "แผนภาพแสดงว่าใคร (actor) ใช้ระบบทำอะไรได้บ้าง (use case)"],
+    ["Actor", "คนรูปก้าง — บทบาทที่อยู่นอกระบบ เป็นคนหรือระบบภายนอกก็ได้ เช่น Payment Gateway"],
+    ["Use case", "วงรี — เป้าหมายที่ actor ต้องการ ตั้งชื่อเป็นกริยา เช่น \"จองที่นั่ง\""],
+    ["System boundary", "กรอบสี่เหลี่ยมแสดงขอบเขตของระบบ"],
+    ["<<include>>", "use case หลักเรียกใช้อีกตัวเสมอ เช่น จองตั๋ว include ชำระเงิน"],
+    ["<<extend>>", "เพิ่มเติมเฉพาะบางเงื่อนไข เช่น ใช้คูปอง extend ชำระเงิน"],
+    ["Generalization (use case)", "actor หรือ use case ลูกสืบทอดจากแม่"],
+    ["Use case description", "ชื่อ, actor, precondition, main success scenario (เส้นทางปกติ), alternative flow (กรณีอื่น/ผิดพลาด), postcondition"]
+  ],
+  o2: [
+    ["Association", "เส้นทึบ — คลาสรู้จัก/ใช้งานกัน"],
+    ["Aggregation", "เส้นทึบ + เพชรโปร่งฝั่ง whole — has-a แบบส่วนย่อยอยู่เองได้ (กลุ่มวิจัย–นักวิจัย)"],
+    ["Composition", "เส้นทึบ + เพชรทึบฝั่ง whole — ส่วนย่อยตายตาม whole (ลบ Folder ลบ Entry ด้วย)"],
+    ["Generalization (class)", "เส้นทึบ + หัวสามเหลี่ยมโปร่งชี้ไปแม่ — extends"],
+    ["Realization", "เส้นประ + หัวสามเหลี่ยมโปร่ง — implements interface"],
+    ["Dependency", "เส้นประ + หัวลูกศรเปิด — ใช้ชั่วคราว เช่น รับเป็นพารามิเตอร์"],
+    ["Multiplicity", "จำนวนที่สัมพันธ์กัน: 1, 0..1, * หรือ 0..*, 1..*, 2..5 เช่น Reservation 1 —— 2..5 Seat = หนึ่งการจองมี 2–5 ที่นั่ง"],
+    ["Domain Model", "แสดงแนวคิดในโลกจริง (conceptual class) + attribute + association ไม่ใส่เมธอด ไม่ใช่ตาราง DB (Loan ✓ / SqlLoanRow ✗)"],
+    ["SSD (System Sequence Diagram)", "มองระบบเป็นกล่องดำ แสดงแค่ actor ↔ :System กับ system event"],
+    ["DSD (Design Sequence Diagram)", "เปิดกล่องดูว่า object ภายในส่งข้อความหากันอย่างไร ข้อความกลายเป็นเมธอดของผู้รับ"],
+    ["GRASP", "หลักมอบหน้าที่ให้คลาส (ใครควรทำอะไร)"],
+    ["Information Expert", "ให้คนที่มีข้อมูลเป็นคนทำ เช่น OrderItem มี qty, price จึงคำนวณ lineTotal"],
+    ["Creator", "A ควรสร้าง B ถ้า A ประกอบ/เก็บ/ใช้ B ใกล้ชิด เช่น Order สร้าง OrderItem"],
+    ["Controller", "object แรกที่รับ system event จาก UI แล้วประสานงาน (ไม่ทำเองทุกอย่าง)"],
+    ["Low Coupling / High Cohesion", "พึ่งพากันน้อย / งานในคลาสเป็นเรื่องเดียวกัน"],
+    ["Pure Fabrication / Indirection / Protected Variations", "สร้างคลาสเทคนิคขึ้นมา เช่น Repository / ใช้ตัวกลาง / ห่อจุดที่เปลี่ยนบ่อยด้วย interface"],
+    ["GRASP vs SOLID vs GoF", "GRASP มอบหน้าที่ · SOLID ประเมินโครงสร้าง · GoF ให้โครงสร้างสำเร็จรูป ใช้ร่วมกันได้"]
+  ],
+  q1: [
+    ["Testing", "เทียบผลที่ควรเป็น (expected) กับผลที่เป็นจริง (actual) · เทสต์ผ่านยืนยันได้เฉพาะเคสที่ลอง"],
+    ["Test oracle", "แหล่งอ้างอิงว่าผลที่ถูกคืออะไร เช่น ข้อกำหนด, คำนวณมือ"],
+    ["Testing vs Debugging", "Testing ช่วยพบปัญหา · Debugging หาสาเหตุและแก้"],
+    ["Unit test", "ทดสอบหน่วยเล็ก (คลาส/เมธอด) แยกจาก dependency จริง เร็ว มีจำนวนมาก"],
+    ["Integration test", "ทดสอบส่วนต่าง ๆ ทำงานร่วมกัน (ไฟล์จริง, DB) ช้ากว่า unit"],
+    ["System / E2E test", "เปิดแอปจริง ทำตามขั้นตอนผู้ใช้ตั้งแต่ต้นจนจบ ช้าสุด จำนวนน้อย"],
+    ["Equivalence Partitioning", "แบ่งกลุ่ม input ที่ทำงานเหมือนกัน แล้วเลือกตัวแทนกลุ่มละตัว"],
+    ["Boundary Value", "ทดสอบค่าที่รอยต่อ เช่น เกรด A ≥ 80 ทดสอบ 79 และ 80 จับบั๊ก > กับ >= ได้"],
+    ["Decision Table", "ใช้เมื่อหลายเงื่อนไขผสมกัน ทดสอบทุกการรวมของเงื่อนไข"],
+    ["Black-box vs White-box", "Black-box ออกแบบจากข้อกำหนด ไม่ดูโค้ด · White-box ออกแบบจากโค้ดภายใน"],
+    ["assertEquals(expected, actual)", "ตรวจว่าค่าเท่ากัน ค่าที่คาดหวังใส่ก่อน"],
+    ["assertThrows(X.class, () -> ...)", "ตรวจว่าโยน exception ชนิด X ต้องส่ง lambda ไม่ใช่เรียกเมธอดเลย"],
+    ["Arrange – Act – Assert", "โครงเทสต์: เตรียมข้อมูล → เรียกสิ่งที่ทดสอบ → ตรวจผล"],
+    ["@BeforeEach", "เตรียม fixture ใหม่ก่อนทุกเทสต์ เทสต์จึงไม่พึ่งลำดับกัน"],
+    ["TDD (Red → Green → Refactor)", "เขียนเทสต์ที่ล้มก่อน → เขียนโค้ดน้อยที่สุดให้ผ่าน → ปรับโค้ดโดยพฤติกรรมเดิม"],
+    ["Stub / Mock / Fake", "Stub กำหนดคำตอบ (when...thenReturn) · Mock ตรวจว่าถูกเรียก (verify) · Fake ทำงานจริงแบบง่าย เช่น repository ในหน่วยความจำ"],
+    ["Coverage", "บอกว่าโค้ดบรรทัดไหนถูกเรียกระหว่างเทสต์ ไม่ได้บอกว่าตรวจถูก 100% ก็ยังมีบั๊กได้"],
+    ["Flaky test", "เทสต์ที่ผ่านบ้างพังบ้าง (เวลา, random, ลำดับ) แก้โดยควบคุมปัจจัยเช่นส่ง Clock เข้ามา"],
+    ["Regression test / CI", "เก็บเทสต์ของบั๊กที่แก้แล้วกันเกิดซ้ำ / รันเทสต์อัตโนมัติทุกครั้งที่โค้ดเปลี่ยน"]
+  ]
+};
 const FCD = {
+  con: { lab: "เนื้อหาบท", build: () => fcTopics().flatMap(t => (FCC[t.id] || []).map(([f, b], i) => ({ k: "c:" + t.id + ":" + i, ref: t.lec + " · " + t.title, f: esc(f), b: esc(b) }))) },
   ask: { lab: "ประเด็นอาจารย์ชี้", build: () => fcTopics().flatMap(t => t.ask.map(([q, a], i) => ({ k: "a:" + t.id + ":" + i, ref: t.lec + " · " + t.title, f: q, b: a }))) },
   t: { lab: "ข้ออาจารย์ชี้", build: () => fcTopics().flatMap(t => t.quiz.map((q, i) => [q, i]).filter(([q]) => q.s === "t").map(([q, i]) => ({ k: "t:" + t.id + ":" + i, ref: t.lec + " · " + t.title, q }))) },
   pf: { lab: "Practice Final", all: true, build: () => PF.map((q, i) => ({ k: "p:" + i, ref: "Practice Final ข้อ " + q.n, q })) }
 };
-let fc = { deck: "ask", topic: "all", only: false, order: null, i: 0, flip: false };
+let fc = { deck: "con", topic: "all", only: false, order: null, i: 0, flip: false };
 function fcTopics() { return fc.topic === "all" ? TOPICS : TOPICS.filter(t => t.id === fc.topic); }
 function fcCards() { const fk = store.fc || {}; const all = FCD[fc.deck].build(); return fc.only ? all.filter(c => !fk[c.k]) : all; }
 function fcReset() { fc.order = null; fc.i = 0; fc.flip = false; }
@@ -1242,9 +1523,9 @@ function renderFC(v) {
   if (!fc.order || fc.order.length !== cards.length) fc.order = cards.map((_, i) => i);
   if (fc.i >= cards.length) fc.i = Math.max(0, cards.length - 1);
   const ch = (k, lab, on, d) => `<button class="chip" aria-pressed="${on}" data-${d}="${k}">${lab}</button>`;
-  let h = `<h2>Flash Card</h2><p class="sub">แตะการ์ดเพื่อพลิกดูคำตอบ · คีย์บอร์ด: Space พลิก, ← → เปลี่ยนการ์ด · จำได้ ${known}/${all.length} ใบ</p>
+  let h = `<h2>Flash Card</h2><p class="sub">ด้านหน้าเป็นคำหรือข้อความ แตะเพื่อพลิกดูว่าหมายถึงอะไร · คีย์บอร์ด: Space พลิก, ← → เปลี่ยนการ์ด · จำได้ ${known}/${all.length} ใบ</p>
   <div class="filters">${Object.entries(FCD).map(([k, d]) => ch(k, `${d.lab} (${d.build().length})`, fc.deck === k, "d")).join("")}</div>
-  <div class="filters"><select class="fcsel" id="fcsel" aria-label="เลือกบท"${FCD[fc.deck].all ? " disabled" : ""}><option value="all">ทุกบท</option>${TOPICS.map(t => `<option value="${t.id}"${fc.topic === t.id ? " selected" : ""}>${esc(t.lec + " · " + t.title)} (${(fc.deck === "ask" ? t.ask : t.quiz.filter(q => q.s === "t")).length})</option>`).join("")}</select>${FCD[fc.deck].all ? `<span class="fcnote">Practice Final ไม่ได้แยกบท</span>` : ""}</div>
+  <div class="filters"><select class="fcsel" id="fcsel" aria-label="เลือกบท"${FCD[fc.deck].all ? " disabled" : ""}><option value="all">ทุกบท</option>${TOPICS.map(t => `<option value="${t.id}"${fc.topic === t.id ? " selected" : ""}>${esc(t.lec + " · " + t.title)} (${(fc.deck === "con" ? FCC[t.id] || [] : fc.deck === "ask" ? t.ask : t.quiz.filter(q => q.s === "t")).length})</option>`).join("")}</select>${FCD[fc.deck].all ? `<span class="fcnote">Practice Final ไม่ได้แยกบท</span>` : ""}</div>
   <div class="filters">${ch("0", "ทุกใบ", !fc.only, "o")}${ch("1", "เฉพาะที่ยังไม่จำ", fc.only, "o")}<button class="chip" id="fcsh">สลับลำดับ</button><button class="chip reset" id="fcrs">ล้างที่จำได้ชุดนี้</button></div>`;
   if (!cards.length) { v.innerHTML = h + `<p class="empty">${all.length ? "จำได้ครบทุกใบแล้ว 🎉" : "บทนี้ไม่มีการ์ดในชุดนี้"}</p>`; return fcBind(v, cards); }
   const c = cards[fc.order[fc.i]];
@@ -1254,8 +1535,8 @@ function renderFC(v) {
     back = `<span class="fa">${esc(c.q.o[c.q.a])}</span><span class="fe">${esc(c.q.e)}</span>`;
   } else { front = `<span>${c.f}</span>`; back = `<span class="fa">${c.b}</span>`; }
   h += `<div class="fcw"><div class="fcc${fc.flip ? " on" : ""}" id="fcc" role="button" tabindex="0" aria-label="พลิกการ์ด">
-    <div class="fcf"><div class="fk"><span>${esc(c.ref)}</span><span>คำถาม</span></div><div class="fq">${front}</div><div class="fh">แตะเพื่อดูคำตอบ</div></div>
-    <div class="fcf bk"><div class="fk"><span>${esc(c.ref)}</span><span>คำตอบ</span></div><div class="fq">${back}</div><div class="fh">แตะเพื่อกลับไปดูคำถาม</div></div>
+    <div class="fcf"><div class="fk"><span>${esc(c.ref)}</span><span>${c.q ? "คำถาม" : "คำนี้หมายถึงอะไร?"}</span></div><div class="fq${c.q ? "" : " term"}">${front}</div><div class="fh">แตะเพื่อพลิกดู${c.q ? "คำตอบ" : "ความหมาย"}</div></div>
+    <div class="fcf bk"><div class="fk"><span>${esc(c.ref)}</span><span>${c.q ? "คำตอบ" : "ความหมาย"}</span></div><div class="fq">${back}</div><div class="fh">แตะเพื่อกลับไปด้านหน้า</div></div>
   </div></div>
   <div class="fcmark"><button class="no" id="fcno" aria-pressed="${fk[c.k] === 0}">ยังไม่จำ</button><button class="yes" id="fcyes" aria-pressed="${fk[c.k] === 1}">จำได้แล้ว</button></div>
   <div class="fcnav"><button class="btn ghost" id="fcp" ${fc.i ? "" : "disabled"}>← ก่อนหน้า</button><span class="fcpos">${fc.i + 1} / ${cards.length}</span><button class="btn ghost" id="fcn" ${fc.i < cards.length - 1 ? "" : "disabled"}>ถัดไป →</button></div>`;
