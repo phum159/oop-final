@@ -204,6 +204,9 @@ details.ask>summary small{font-weight:500;color:var(--muted);font-size:.78rem;fo
 .fcf .fe{font-size:.9rem;font-weight:400;color:var(--muted)}
 .fcf .fh{font-size:.75rem;color:var(--muted);text-align:center}
 .fcf pre.code{margin:0}
+.fcsel{font:inherit;font-size:.88rem;padding:7px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);max-width:100%}
+.fcsel:disabled{opacity:.5}
+.fcnote{font-size:.8rem;color:var(--muted)}
 .fcnav{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
 .fcnav .btn{padding:9px 16px}
 .fcpos{font-size:.9rem;color:var(--muted);min-width:76px;text-align:center;font-variant-numeric:tabular-nums}
@@ -1224,11 +1227,12 @@ function bindPF(v) {
 }
 
 const FCD = {
-  ask: { lab: "ประเด็นอาจารย์ชี้", build: () => TOPICS.flatMap(t => t.ask.map(([q, a], i) => ({ k: "a:" + t.id + ":" + i, ref: t.lec + " · " + t.title, f: q, b: a }))) },
-  t: { lab: "ข้ออาจารย์ชี้", build: () => TOPICS.flatMap(t => t.quiz.map((q, i) => [q, i]).filter(([q]) => q.s === "t").map(([q, i]) => ({ k: "t:" + t.id + ":" + i, ref: t.lec + " · " + t.title, q }))) },
-  pf: { lab: "Practice Final", build: () => PF.map((q, i) => ({ k: "p:" + i, ref: "Practice Final ข้อ " + q.n, q })) }
+  ask: { lab: "ประเด็นอาจารย์ชี้", build: () => fcTopics().flatMap(t => t.ask.map(([q, a], i) => ({ k: "a:" + t.id + ":" + i, ref: t.lec + " · " + t.title, f: q, b: a }))) },
+  t: { lab: "ข้ออาจารย์ชี้", build: () => fcTopics().flatMap(t => t.quiz.map((q, i) => [q, i]).filter(([q]) => q.s === "t").map(([q, i]) => ({ k: "t:" + t.id + ":" + i, ref: t.lec + " · " + t.title, q }))) },
+  pf: { lab: "Practice Final", all: true, build: () => PF.map((q, i) => ({ k: "p:" + i, ref: "Practice Final ข้อ " + q.n, q })) }
 };
-let fc = { deck: "ask", only: false, order: null, i: 0, flip: false };
+let fc = { deck: "ask", topic: "all", only: false, order: null, i: 0, flip: false };
+function fcTopics() { return fc.topic === "all" ? TOPICS : TOPICS.filter(t => t.id === fc.topic); }
 function fcCards() { const fk = store.fc || {}; const all = FCD[fc.deck].build(); return fc.only ? all.filter(c => !fk[c.k]) : all; }
 function fcReset() { fc.order = null; fc.i = 0; fc.flip = false; }
 function renderFC(v) {
@@ -1240,8 +1244,9 @@ function renderFC(v) {
   const ch = (k, lab, on, d) => `<button class="chip" aria-pressed="${on}" data-${d}="${k}">${lab}</button>`;
   let h = `<h2>Flash Card</h2><p class="sub">แตะการ์ดเพื่อพลิกดูคำตอบ · คีย์บอร์ด: Space พลิก, ← → เปลี่ยนการ์ด · จำได้ ${known}/${all.length} ใบ</p>
   <div class="filters">${Object.entries(FCD).map(([k, d]) => ch(k, `${d.lab} (${d.build().length})`, fc.deck === k, "d")).join("")}</div>
+  <div class="filters"><select class="fcsel" id="fcsel" aria-label="เลือกบท"${FCD[fc.deck].all ? " disabled" : ""}><option value="all">ทุกบท</option>${TOPICS.map(t => `<option value="${t.id}"${fc.topic === t.id ? " selected" : ""}>${esc(t.lec + " · " + t.title)} (${(fc.deck === "ask" ? t.ask : t.quiz.filter(q => q.s === "t")).length})</option>`).join("")}</select>${FCD[fc.deck].all ? `<span class="fcnote">Practice Final ไม่ได้แยกบท</span>` : ""}</div>
   <div class="filters">${ch("0", "ทุกใบ", !fc.only, "o")}${ch("1", "เฉพาะที่ยังไม่จำ", fc.only, "o")}<button class="chip" id="fcsh">สลับลำดับ</button><button class="chip reset" id="fcrs">ล้างที่จำได้ชุดนี้</button></div>`;
-  if (!cards.length) { v.innerHTML = h + `<p class="empty">จำได้ครบทุกใบแล้ว 🎉</p>`; return fcBind(v, cards); }
+  if (!cards.length) { v.innerHTML = h + `<p class="empty">${all.length ? "จำได้ครบทุกใบแล้ว 🎉" : "บทนี้ไม่มีการ์ดในชุดนี้"}</p>`; return fcBind(v, cards); }
   const c = cards[fc.order[fc.i]];
   let front, back;
   if (c.q) {
@@ -1265,6 +1270,7 @@ function fcMark(c, val, n) {
 }
 function fcBind(v, cards, c) {
   v.querySelectorAll(".chip[data-d]").forEach(b => b.onclick = () => { fc.deck = b.dataset.d; fcReset(); render(); });
+  v.querySelector("#fcsel").onchange = e => { fc.topic = e.target.value; fcReset(); render(); };
   v.querySelectorAll(".chip[data-o]").forEach(b => b.onclick = () => { fc.only = b.dataset.o === "1"; fcReset(); render(); });
   v.querySelector("#fcsh").onclick = () => { fc.order = shuffle(cards.map((_, i) => i)); fc.i = 0; fc.flip = false; render(); };
   v.querySelector("#fcrs").onclick = () => { if (confirm("ล้างสถานะ \"จำได้\" ของชุดนี้?")) { FCD[fc.deck].build().forEach(x => delete store.fc[x.k]); save(); fcReset(); render(); } };
