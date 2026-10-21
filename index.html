@@ -1136,6 +1136,7 @@ function renderHome(v) {
   <div class="kw">
   <div><b>ขอบเขต</b> ออกตั้งแต่บทที่ 1 แต่ไม่เอาข้อ Midterm มาออกซ้ำ · บทก่อนกลางภาคออกประปราย · <mark>บทหลังกลางภาคออกเยอะกว่า</mark></div>
   <div><b>ลำดับแนะนำ</b> อ่านกล่อง "อาจารย์ชี้" → อ่านสรุป → ทำข้อ "อาจารย์ชี้" → ทำข้อฝึกเพิ่ม → กรอง "ข้อที่ผิด" ทำซ้ำ → <a href="#mock" data-go="mock">สอบรวม</a></div>
+  <div><b>ทำเฉพาะข้อที่อาจารย์ชี้</b> <button class="btn" id="onlyT">ทำเฉพาะข้ออาจารย์ชี้ทุกบท (${TC} ข้อ)</button></div>
   <div><b>อาจารย์ย้ำในคลิป</b> GoF ถาม concept ไม่ให้เขียนโปรแกรม · Socket ถาม accept() และช่วง port · Stream ให้โค้ดแล้วถาม output · Abstract Factory = สร้าง object เป็นชุดที่เข้ากัน · UML เป็นทฤษฎี ดู lab</div>
   <div><b>จุดที่ควรเช็คกับสไลด์</b> Composite (อาจารย์พูดว่าแตกแค่ 2 ทาง) · port (อาจารย์พูด 64 บิต สไลด์บอก 16 บิต) · StringBuilder (สไลด์หน้า 31 บอก thread-safe แต่จริง ๆ คือ StringBuffer)</div>
   </div>
@@ -1173,18 +1174,20 @@ function bindOpts(v, t) {
 function updScore(v, t) { const s = store[t.id]; const ok = t.quiz.filter((q, i) => s[i] === q.a).length; v.querySelector(".score").textContent = `ถูก ${ok} จาก ${Object.keys(s).length} ข้อที่ทำ`; }
 
 let mock = null;
+const TC = TOPICS.reduce((c, t) => c + t.quiz.filter(q => q.s === "t").length, 0);
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function startMock(n) {
   const hi = [], lo = [];
   TOPICS.forEach(t => t.quiz.forEach(q => (t.w === "hi" ? hi : lo).push({ ...q, ref: t.lec + " · " + t.title })));
   let pick;
-  if (n >= hi.length + lo.length) pick = shuffle([...hi, ...lo]);
+  if (n === "t") pick = shuffle([...hi, ...lo].filter(q => q.s === "t"));
+  else if (n >= hi.length + lo.length) pick = shuffle([...hi, ...lo]);
   else { const nh = Math.min(hi.length, Math.round(n * 0.75)); pick = shuffle([...shuffle(hi).slice(0, nh), ...shuffle(lo).slice(0, n - nh)]); }
   mock = { n, qs: pick.map(q => ({ q, order: shuffle(q.o.map((_, i) => i)), p: undefined })) };
   render();
 }
 function renderMock(v) {
-  let h = `<h2>สอบรวม</h2><p class="sub">สุ่มจากทุกบท เน้นหลังกลางภาค 75% ก่อนกลางภาค 25% และสลับตำแหน่งตัวเลือก ตอบแล้วเฉลยทันที</p><div class="mockbar">${[[30, "สุ่ม 30 ข้อ"], [60, "สุ่ม 60 ข้อ"], [9999, "ทุกข้อ"]].map(([n, l]) => `<button class="btn${mock && mock.n === n ? "" : " ghost"}" data-n="${n}">${l}</button>`).join("")}</div>`;
+  let h = `<h2>สอบรวม</h2><p class="sub">สุ่มจากทุกบท เน้นหลังกลางภาค 75% ก่อนกลางภาค 25% และสลับตำแหน่งตัวเลือก ตอบแล้วเฉลยทันที · ปุ่ม "เฉพาะอาจารย์ชี้" รวมเฉพาะข้อที่อาจารย์ชี้จากทุกบท</p><div class="mockbar">${[["t", `เฉพาะอาจารย์ชี้ (${TC} ข้อ)`], [30, "สุ่ม 30 ข้อ"], [60, "สุ่ม 60 ข้อ"], [9999, "ทุกข้อ"]].map(([n, l]) => `<button class="btn${mock && mock.n === n ? "" : " ghost"}" data-n="${n}">${l}</button>`).join("")}</div>`;
   if (mock) {
     const ans = mock.qs.filter(x => x.p !== undefined), ok = ans.filter(x => x.p === x.q.a).length;
     h += `<div class="result"><div class="big">${ok}<span style="font-size:1.1rem">/${mock.qs.length}</span></div><div class="rb"><div>ตอบแล้ว ${ans.length} ข้อ${ans.length === mock.qs.length ? ` · ได้ ${Math.round(ok / mock.qs.length * 100)}%` : ""}</div><div class="bar"><i class="g" style="width:${ok / mock.qs.length * 100}%"></i><i class="r" style="width:${(ans.length - ok) / mock.qs.length * 100}%"></i></div></div></div>`;
@@ -1193,7 +1196,7 @@ function renderMock(v) {
     h += `<p class="empty">เลือกจำนวนข้อด้านบนเพื่อเริ่ม</p>`;
   }
   v.innerHTML = h;
-  v.querySelectorAll(".btn[data-n]").forEach(b => b.onclick = () => startMock(+b.dataset.n));
+  v.querySelectorAll(".btn[data-n]").forEach(b => b.onclick = () => startMock(b.dataset.n === "t" ? "t" : +b.dataset.n));
   v.querySelectorAll(".opt:not([disabled])").forEach(b => b.onclick = () => { const i = +b.dataset.k.split(":")[1]; mock.qs[i].p = +b.dataset.o; const y = window.scrollY; render(); window.scrollTo(0, y); });
 }
 
@@ -1202,6 +1205,7 @@ function render() {
   if (cur === "home") renderHome(v);
   else if (cur === "mock") renderMock(v);
   else renderTopic(v, TOPICS.find(t => t.id === cur));
+  const ot = v.querySelector("#onlyT"); if (ot) ot.onclick = () => { go("mock"); startMock("t"); };
   v.querySelectorAll("[data-go]").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.go); });
   globalMeter();
 }
